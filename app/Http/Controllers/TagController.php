@@ -4,15 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+use App\Http\Resources\TagResource;
 
 class TagController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return Inertia::render('Tags/Index', [
+            'tags' => TagResource::collection(Tag::paginate(20)),
+            'filters' => request()->all(['search', 'per_page'])
+        ]);
     }
 
     /**

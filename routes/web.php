@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TagController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,7 +25,10 @@ Route::middleware([
     Route::get('/assets', function () {
         return Inertia::render('Assets/Index');
     })->name('assets.index');
-    Route::get('/tags', function () {
-        return Inertia::render('Tags/Index');
-    })->name('tags.index');
+    Route::get('/ui', function () {
+        return Inertia::render('Ui/Index');
+    })->name('ui.index');
+
+
+    Route::resource('tags', TagController::class);
 });
