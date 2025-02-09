@@ -18,13 +18,11 @@ const columns = [
 ];
 
 const handleAdd = () => {
-    console.log('Add tag');
-    // router.get(route('tags.create'));
+    router.get(route('tags.create'));
 };
 
 const handleEdit = (tag) => {
-    console.log('Edit tag')
-    // router.get(route('tags.edit', tag.id));
+    router.get(route('tags.edit', tag.id));
 };
 
 const handleBulkDelete = (selected) => {

@@ -30,5 +30,13 @@ Route::middleware([
     })->name('ui.index');
 
 
+    Route::get('/tags/create', function () {
+        return Inertia::render('Tags/Create');
+    })->name('tags.create');
+
+    Route::get('/tags/{tag}/edit', function () {
+        return Inertia::render('Tags/Edit');
+    })->name('tags.edit');
+
     Route::resource('tags', TagController::class);
 });

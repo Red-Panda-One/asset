@@ -24,6 +24,14 @@ class TagController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return Inertia::render('Tags/Create');
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -42,11 +50,20 @@ class TagController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Tag $tag)
+    {
+        return Inertia::render('Tags/Edit', [
+            'tag' => new TagResource($tag)
+        ]);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Tag $tag)
     {
-        $this->authorize('update', $tag);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -63,7 +80,6 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
-        $this->authorize('delete', $tag);
 
         $tag->delete();
 
