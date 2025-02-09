@@ -12,6 +12,12 @@ class Tag extends Model
 
     protected $fillable = [
         'name',
-        'description'
+        'description',
+        'team_id'
     ];
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
 }
