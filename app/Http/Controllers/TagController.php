@@ -4,15 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use App\Http\Resources\TagResource;
 
 class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        return Inertia::render('Tags/Index', [
+            'tags' => TagResource::collection(
+                Tag::where('team_id', $request->user()->currentTeam->id)
+                   ->paginate(20)
+            ),
+            'filters' => request()->all(['search', 'per_page'])
+        ]);
     }
 
     /**
@@ -20,7 +28,7 @@ class TagController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Tags/Create');
     }
 
     /**
@@ -28,15 +36,17 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string'
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Tag $tag)
-    {
-        //
+        $tag = Tag::create([
+            ...$validated,
+            'team_id' => $request->user()->currentTeam->id
+        ]);
+
+        return redirect()->route('tags.index');
     }
 
     /**
@@ -44,7 +54,9 @@ class TagController extends Controller
      */
     public function edit(Tag $tag)
     {
-        //
+        return Inertia::render('Tags/Edit', [
+            'tag' => new TagResource($tag)
+        ]);
     }
 
     /**
@@ -52,7 +64,15 @@ class TagController extends Controller
      */
     public function update(Request $request, Tag $tag)
     {
-        //
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string'
+        ]);
+
+        $tag->update($validated);
+
+        return redirect()->route('tags.index');
     }
 
     /**
@@ -60,6 +80,9 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
-        //
+
+        $tag->delete();
+
+        return redirect()->route('tags.index');
     }
 }
