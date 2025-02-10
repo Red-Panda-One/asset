@@ -22,21 +22,25 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
-    Route::get('/assets', function () {
-        return Inertia::render('Assets/Index');
-    })->name('assets.index');
     Route::get('/ui', function () {
         return Inertia::render('Ui/Index');
     })->name('ui.index');
-
-
-    Route::get('/tags/create', function () {
-        return Inertia::render('Tags/Create');
-    })->name('tags.create');
-
-    Route::get('/tags/{tag}/edit', function () {
-        return Inertia::render('Tags/Edit');
-    })->name('tags.edit');
-
-    Route::resource('tags', TagController::class);
 });
+
+// Routes for Assets
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->get('/assets', function () {
+    return Inertia::render('Assets/Index');
+})->name('assets.index');
+
+
+// Routes for Tags
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->resource('tags', TagController::class);
+
