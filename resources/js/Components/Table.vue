@@ -23,10 +23,14 @@ const props = defineProps({
     selectable: {
         type: Boolean,
         default: false
+    },
+    showCheckboxes: {
+        type: Boolean,
+        default: true
     }
 });
 
-const emit = defineEmits(['add', 'edit', 'bulk-edit', 'bulk-delete']);
+const emit = defineEmits(['add', 'edit', 'delete', 'bulk-edit', 'bulk-delete']);
 
 const selectedItems = ref([]);
 const sortColumn = ref('');
@@ -107,7 +111,7 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                             <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
-                                        <th v-if="selectable" scope="col" class="relative px-7 sm:w-12 sm:px-6">
+                                        <th v-if="selectable && showCheckboxes" scope="col" class="relative px-7 sm:w-12 sm:px-6">
                                             <input
                                                 type="checkbox"
                                                 class="absolute left-4 top-1/2 -mt-2 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-600"
@@ -151,7 +155,7 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-600 dark:bg-gray-800">
                                     <tr v-for="item in sortedItems" :key="item.id" :class="{ 'bg-gray-50 dark:bg-gray-700': isSelected(item) }">
-                                        <td v-if="selectable" class="relative px-7 sm:w-12 sm:px-6">
+                                        <td v-if="selectable && showCheckboxes" class="relative px-7 sm:w-12 sm:px-6">
                                             <input
                                                 type="checkbox"
                                                 class="absolute left-4 top-1/2 -mt-2 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-600"
@@ -173,6 +177,12 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                                             >
                                                 Edit
                                             </button>
+                                            <button
+                                                @click="$emit('delete', item)"
+                                                class="pl-4 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -184,12 +194,6 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
 
             <!-- Bulk Actions -->
             <div v-if="selectable && selectedItems.length > 0" class="flex justify-end items-center mt-4 space-x-3">
-                <button
-                    @click="$emit('bulk-edit', selectedItems)"
-                    class="inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 shadow-sm hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-600 dark:hover:bg-gray-600"
-                >
-                    Bulk Edit
-                </button>
                 <button
                     @click="$emit('bulk-delete', selectedItems)"
                     class="inline-flex items-center px-3 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
