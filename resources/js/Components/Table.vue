@@ -168,7 +168,19 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                                             :key="column.key"
                                             class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400"
                                         >
-                                            {{ item[column.key] }}
+                                            <slot
+                                                :name="`cell-${column.key}`"
+                                                :item="item"
+                                                :value="item[column.key]"
+                                                :column="column"
+                                            >
+                                                <template v-if="column.render">
+                                                    <component :is="column.render(item)" />
+                                                </template>
+                                                <template v-else>
+                                                    {{ item[column.key] }}
+                                                </template>
+                                            </slot>
                                         </td>
                                         <td class="relative py-4 pr-4 pl-3 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
                                             <button

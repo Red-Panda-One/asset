@@ -3,6 +3,8 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '../../../Components/Container.vue'
 import Table from '../../../Components/Table.vue'
 import { router } from '@inertiajs/vue3';
+import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
+import { h } from 'vue';
 
 const props = defineProps({
     categories: {
@@ -12,12 +14,17 @@ const props = defineProps({
 });
 
 const columns = [
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: 'Name', render: (item) => (
+        h(NeumorphicBadge, {
+            color: item.color || '#646a75',
+            text: item.name
+        })
+    ) },
     { key: 'description', label: 'Description' },
 ];
 
 const handleAdd = () => {
-    router.get('categories.create');
+    router.get(route('categories.create'));
 }
 
 const handleEdit = (category) => {
@@ -40,7 +47,7 @@ const handleDelete = (category) => {
             </template>
             <Container>
                 <Table
-                title="Categories"
+                    title="Categories"
                     description="A list of all categories in the system"
                     :show-checkboxes="false"
                     :columns="columns"
