@@ -28,9 +28,12 @@ const logout = () => {
 
 const navigation = [
     { name: 'Dashboard', route: 'dashboard', pattern: 'dashboard' },
+    { name: 'Kits', route: 'tags.index', pattern: 'tags.*' },
     { name: 'Assets', route: 'assets.index', pattern: 'assets.index' },
     { name: 'Categories', route: 'categories.index', pattern: 'categories.*' },
     { name: 'Tags', route: 'tags.index', pattern: 'tags.*' },
+    { name: 'Location', route: 'tags.index', pattern: 'tags.*' },
+    { name: 'QR Scanner', route: 'tags.index', pattern: 'tags.*' },
 ];
 </script>
 
@@ -55,17 +58,13 @@ const navigation = [
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
-                                </NavLink>
-                                <NavLink :href="route('assets.index')" :active="route().current('assets.index')">
-                                    Asset
-                                </NavLink>
-                                <NavLink :href="route('categories.index')" :active="route().current('categories.*')">
-                                    Categories
-                                </NavLink>
-                                <NavLink :href="route('tags.index')" :active="route().current('tags.*')">
-                                    Tags
+                                <NavLink
+                                    v-for="item in navigation"
+                                    :key="item.route"
+                                    :href="route(item.route)"
+                                    :active="route().current(item.pattern)"
+                                >
+                                    {{ item.name }}
                                 </NavLink>
                             </div>
                         </div>
@@ -207,17 +206,13 @@ const navigation = [
                 <!-- Responsive Navigation Menu -->
                 <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('assets.index')" :active="route().current('assets.index')">
-                            Assets
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('tags.index')" :active="route().current('tags.*')">
-                            Tags
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.*')">
-                            Categories
+                        <ResponsiveNavLink
+                            v-for="item in navigation"
+                            :key="item.route"
+                            :href="route(item.route)"
+                            :active="route().current(item.pattern)"
+                        >
+                            {{ item.name }}
                         </ResponsiveNavLink>
                     </div>
 
