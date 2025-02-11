@@ -1,6 +1,34 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '../../../Components/Container.vue'
+import Table from '../../../Components/Table.vue'
+import { router } from '@inertiajs/vue3';
+
+const props = defineProps({
+    categories: {
+        type: Object,
+        required: true,
+    }
+});
+
+const columns = [
+    { key: 'name', label: 'Name' },
+    { key: 'description', label: 'Description' },
+];
+
+const handleAdd = () => {
+    router.get('categories.create');
+}
+
+const handleEdit = (category) => {
+    console.log('Editing category:', category); // Debug log
+
+};
+
+const handleDelete = (category) => {
+    console.log('Deleting category:', category); // Debug log
+};
+
 </script>
 
 <template>
@@ -11,9 +39,17 @@ import Container from '../../../Components/Container.vue'
                 </h2>
             </template>
             <Container>
-                <h1 class="text-gray-800 dark:text-gray-200">
-                Categories Page
-                </h1>
+                <Table
+                title="Categories"
+                    description="A list of all categories in the system"
+                    :show-checkboxes="false"
+                    :columns="columns"
+                    :items="categories.data"
+                    :selectable="true"
+                    @add="handleAdd"
+                    @edit="handleEdit"
+                    @delete="handleDelete"
+                />
         </Container>
     </AppLayout>
 
