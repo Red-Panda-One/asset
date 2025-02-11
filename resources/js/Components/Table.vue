@@ -96,7 +96,7 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                     <button
                         type="button"
                         @click="$emit('add')"
-                        class="block px-3 py-2 text-sm font-semibold text-center text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        class="block px-3 py-2 text-sm font-semibold text-center text-white bg-orange-600 rounded-md shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                     >
                         Add
                     </button>
@@ -114,7 +114,7 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                                         <th v-if="selectable && showCheckboxes" scope="col" class="relative px-7 sm:w-12 sm:px-6">
                                             <input
                                                 type="checkbox"
-                                                class="absolute left-4 top-1/2 -mt-2 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-600"
+                                                class="absolute left-4 top-1/2 -mt-2 w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-600"
                                                 :checked="selectedItems.length === items.length"
                                                 @change="toggleSelectAll"
                                             />
@@ -158,7 +158,7 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                                         <td v-if="selectable && showCheckboxes" class="relative px-7 sm:w-12 sm:px-6">
                                             <input
                                                 type="checkbox"
-                                                class="absolute left-4 top-1/2 -mt-2 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-600"
+                                                class="absolute left-4 top-1/2 -mt-2 w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-600"
                                                 :checked="isSelected(item)"
                                                 @change="toggleSelect(item)"
                                             />
@@ -173,13 +173,13 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                                         <td class="relative py-4 pr-4 pl-3 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
                                             <button
                                                 @click="$emit('edit', item)"
-                                                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 @click="$emit('delete', item)"
-                                                class="pl-4 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                class="pl-4 text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
                                             >
                                                 Delete
                                             </button>
