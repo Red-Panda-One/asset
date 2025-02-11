@@ -25,6 +25,13 @@ const switchToTeam = (team) => {
 const logout = () => {
     router.post(route('logout'));
 };
+
+const navigation = [
+    { name: 'Dashboard', route: 'dashboard', pattern: 'dashboard' },
+    { name: 'Assets', route: 'assets.index', pattern: 'assets.index' },
+    { name: 'Categories', route: 'categories.index', pattern: 'categories.*' },
+    { name: 'Tags', route: 'tags.index', pattern: 'tags.*' },
+];
 </script>
 
 <template>
@@ -53,6 +60,9 @@ const logout = () => {
                                 </NavLink>
                                 <NavLink :href="route('assets.index')" :active="route().current('assets.index')">
                                     Asset
+                                </NavLink>
+                                <NavLink :href="route('categories.index')" :active="route().current('categories.*')">
+                                    Categories
                                 </NavLink>
                                 <NavLink :href="route('tags.index')" :active="route().current('tags.*')">
                                     Tags
@@ -205,6 +215,9 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('tags.index')" :active="route().current('tags.*')">
                             Tags
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.*')">
+                            Categories
                         </ResponsiveNavLink>
                     </div>
 
