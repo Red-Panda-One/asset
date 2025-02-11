@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\TagController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -43,4 +44,11 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->resource('tags', TagController::class);
+
+// Routes for Categories
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->resource('categories', CategoriesController::class);
 
