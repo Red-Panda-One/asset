@@ -89,13 +89,24 @@ const createCategory = () => {
                                         ref="colorPicker"
                                         class="hidden"
                                     />
-                                    <TextInput
-                                        id="color"
-                                        v-model="form.color"
-                                        type="text"
-                                        class="flex-1 cursor-pointer"
-                                        @click="openColorPicker"
-                                    />
+                                    <div class="relative">
+                                        <TextInput
+                                            id="color"
+                                            v-model="form.color"
+                                            type="text"
+                                            class="w-[120px]"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2"
+                                            @click="openColorPicker"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm1 2h10v10H5V4z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+
+                                    </div>
                                 </div>
                                 <InputError :message="form.errors.color" class="mt-2" />
                             </div>
