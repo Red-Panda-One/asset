@@ -104,19 +104,19 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 </template>
 
                 <template #cell-name="{ item }">
-                    <div class="flex items-center">
+                    <div class="flex items-center cursor-pointer" @click="router.visit(route('assets.show', item.id))">
                         <div class="flex-shrink-0 mr-4 w-10 h-10">
-                        <img
-                            v-if="item.image"
-                            :src="`/storage/${item.image}`"
-                            class="object-cover w-10 h-10 rounded-lg"
-                            alt="Asset image"
-                        />
-                        <div v-else class="flex justify-center items-center w-10 h-10 bg-gray-100 rounded-lg dark:bg-gray-700">
-                            <PhotoIcon class="w-6 h-6 text-gray-400" />
+                            <img
+                                v-if="item.image"
+                                :src="`/storage/${item.image}`"
+                                class="object-cover w-10 h-10 rounded-lg"
+                                alt="Asset image"
+                            />
+                            <div v-else class="flex justify-center items-center w-10 h-10 bg-gray-100 rounded-lg dark:bg-gray-700">
+                                <PhotoIcon class="w-6 h-6 text-gray-400" />
+                            </div>
                         </div>
-                    </div>
-                        <div>{{ item.name }}</div>
+                        <div class="text-orange-600 hover:text-orange-700">{{ item.name }}</div>
                     </div>
                 </template>
 

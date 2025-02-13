@@ -93,7 +93,9 @@ class AssetController extends Controller
      */
     public function show(Asset $asset)
     {
-        //
+        return Inertia::render('Assets/Show', [
+            'asset' => new AssetResource($asset->load(['category', 'location', 'tags'])),
+        ]);
     }
 
     /**
@@ -103,15 +105,7 @@ class AssetController extends Controller
     {
         return Inertia::render('Assets/Edit/Index', [
             'asset' => new AssetResource($asset->load(['category', 'location', 'tags'])),
-            'categories' => CategoryResource::collection(
-                Categories::where('team_id', request()->user()->currentTeam->id)->get()
-            ),
-            'locations' => LocationResource::collection(
-                Location::where('team_id', request()->user()->currentTeam->id)->get()
-            ),
-            'tags' => TagResource::collection(
-                Tag::where('team_id', request()->user()->currentTeam->id)->get()
-            ),
+
         ]);
     }
 
