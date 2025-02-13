@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,9 +12,15 @@ class LocationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Locations/Index');
+        return Inertia::render('Locations/Index', [
+            'tags' => LocationResource::collection(
+                Location::where('team_id', $request->user()->currentTeam->id)
+                   ->paginate(20)
+            ),
+            'filters' => request()->all(['search', 'per_page'])
+        ]);
     }
 
     /**
