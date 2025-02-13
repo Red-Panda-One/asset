@@ -49,4 +49,8 @@ class Team extends JetstreamTeam
     public function tags() {
         return $this->hasMany(Tag::class);
     }
+
+    public function categories() {
+        return $this->hasMany(Categories::class);
+    }
 }

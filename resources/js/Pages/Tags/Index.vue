@@ -4,6 +4,9 @@ import Table from '@/Components/Table.vue';
 import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import debounce from 'lodash/debounce';
+import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
+import { h } from 'vue';
+
 
 const props = defineProps({
     tags: {
@@ -13,7 +16,12 @@ const props = defineProps({
 });
 
 const columns = [
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: 'Name', render: (item) => (
+        h(NeumorphicBadge, {
+            color: '#F2F4F7',
+            text: item.name
+        })
+    ) },
     { key: 'description', label: 'Description' },
 ];
 
