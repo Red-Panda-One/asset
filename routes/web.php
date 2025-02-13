@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\TagController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -57,9 +58,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-])->get('/location', function () {
-    return Inertia::render('Locations/Index');
-})->name('location.index');
+])->resource('locations', LocationController::class);
 
 // Routes for Assets
 Route::middleware([
