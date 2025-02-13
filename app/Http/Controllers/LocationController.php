@@ -45,7 +45,6 @@ class LocationController extends Controller
 
         $data = $request->only(['name', 'description', 'address']);
 
-
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('locations', 'public');
             $data['image'] = $path;
@@ -76,7 +75,9 @@ class LocationController extends Controller
      */
     public function edit(Location $location)
     {
-        //
+        return Inertia::render('Locations/Edit/Index', [
+            'location' => new LocationResource($location)
+        ]);
     }
 
     /**
@@ -84,7 +85,27 @@ class LocationController extends Controller
      */
     public function update(Request $request, Location $location)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'address' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+        ]);
+
+        $data = $request->only(['name', 'description', 'address']);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('locations', 'public');
+            $data['image'] = $path;
+        }
+
+        $location->update($data);
+
+        return redirect()->route('locations.index')->with('flash', [
+            'banner' => 'Location updated successfully.',
+            'bannerStyle' => 'success',
+            'bannerTimeout' => 2000,
+        ]);
     }
 
     /**

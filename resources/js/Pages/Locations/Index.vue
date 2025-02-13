@@ -21,13 +21,13 @@ const handleAdd = () => {
 };
 
 const handleEdit = (location) => {
-    //router.visit(route('location.edit', location.id));
+    router.visit(route('locations.edit', location.id));
 };
 
 const handleDelete = (location) => {
     /*
     if (confirm('Are you sure you want to delete this location?')) {
-        router.delete(route('location.destroy', location.id));
+        router.delete(route('locations.destroy', location.id));
     } */
 };
 
