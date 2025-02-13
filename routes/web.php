@@ -52,3 +52,29 @@ Route::middleware([
     'verified',
 ])->resource('categories', CategoriesController::class);
 
+// Routes for Location
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->get('/location', function () {
+    return Inertia::render('Locations/Index');
+})->name('location.index');
+
+// Routes for Assets
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->get('/scanner', function () {
+    return Inertia::render('Scanner/Index');
+})->name('scanner.index');
+
+// Routes for Kit
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->get('/kit', function () {
+    return Inertia::render('Kits/Index');
+})->name('kit.index');
