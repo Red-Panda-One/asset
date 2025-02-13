@@ -21,7 +21,7 @@ const columns = [
 
 
 const handleAdd = () => {
-    router.visit(route('location.create'));
+    router.visit(route('locations.create'));
 };
 
 const handleEdit = (location) => {
@@ -51,7 +51,7 @@ const perPage = ref(props.filters.per_page || '20');
 
 watch([search, perPage], ([newSearch, newPerPage]) => {
     router.get(
-        route('location.index'),
+        route('locations.index'),
         { search: newSearch, per_page: newPerPage },
         { preserveState: true, preserveScroll: true }
     );
