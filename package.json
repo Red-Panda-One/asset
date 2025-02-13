@@ -22,6 +22,7 @@
     "dependencies": {
         "@heroicons/vue": "^2.2.0",
         "@vueuse/integrations": "^12.5.0",
+        "qr-scanner": "^1.4.2",
         "qrcode": "^1.5.4"
     }
 }
