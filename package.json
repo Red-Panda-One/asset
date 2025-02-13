@@ -20,6 +20,8 @@
         "vue": "^3.3.13"
     },
     "dependencies": {
-        "@heroicons/vue": "^2.2.0"
+        "@heroicons/vue": "^2.2.0",
+        "@vueuse/integrations": "^12.5.0",
+        "qrcode": "^1.5.4"
     }
 }
