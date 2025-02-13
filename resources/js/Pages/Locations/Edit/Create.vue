@@ -57,7 +57,7 @@ const handleDrop = (e) => {
 
 const submit = () => {
     form.post(route('locations.index'), {
-        preserveState: false,
+        preserveState: true,
         onSuccess: () => {
             form.reset();
             imagePreview.value = null;
