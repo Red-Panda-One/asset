@@ -13,11 +13,11 @@ class AssetResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'image' => $this->image,
             'value' => $this->value,
+            'image' => $this->image,
             'category' => new CategoryResource($this->whenLoaded('category')),
             'location' => new LocationResource($this->whenLoaded('location')),
-            'tag' => TagResource::collection($this->whenLoaded('tag')),
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
         ];
     }
 }

@@ -23,7 +23,7 @@ class AssetController extends Controller
     {
         return Inertia::render('Assets/Index', [
             'assets' => AssetResource::collection(
-                Asset::with(['category', 'location', 'tags'])
+                Asset::with(['category', 'location', 'tags'])  // Make sure 'tags' is included here
                     ->where('team_id', $request->user()->currentTeam->id)
                     ->paginate(20)
             ),

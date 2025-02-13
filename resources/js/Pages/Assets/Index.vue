@@ -7,6 +7,8 @@ import { ref, watch } from 'vue';
 import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
+import { PhotoIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
     assets: Object,
@@ -17,6 +19,7 @@ const columns = [
     { key: 'name', label: 'Name' },
     { key: 'value', label: 'Value' },
     { key: 'category', label: 'Category' },
+    { key: 'tags', label: 'Tags' },
     { key: 'location', label: 'Location' },
     { key: 'description', label: 'Description' },
 ];
@@ -102,9 +105,17 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
 
                 <template #cell-name="{ item }">
                     <div class="flex items-center">
-                        <div v-if="item.image" class="flex-shrink-0 mr-4 w-10 h-10">
-                            <img :src="`/storage/${item.image}`" class="object-cover w-10 h-10 rounded-full" />
+                        <div class="flex-shrink-0 mr-4 w-10 h-10">
+                        <img
+                            v-if="item.image"
+                            :src="`/storage/${item.image}`"
+                            class="object-cover w-10 h-10 rounded-lg"
+                            alt="Asset image"
+                        />
+                        <div v-else class="flex justify-center items-center w-10 h-10 bg-gray-100 rounded-lg dark:bg-gray-700">
+                            <PhotoIcon class="w-6 h-6 text-gray-400" />
                         </div>
+                    </div>
                         <div>{{ item.name }}</div>
                     </div>
                 </template>
@@ -114,7 +125,24 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 </template>
 
                 <template #cell-category="{ item }">
-                    {{ item.category?.name || '-' }}
+                    <NeumorphicBadge
+                        v-if="item.category"
+                        color="#E6E6FA"
+                        :text="item.category.name"
+                    />
+                    <span v-else>-</span>
+                </template>
+
+                <template #cell-tags="{ item }">
+                    <div class="flex flex-wrap gap-1">
+                        <NeumorphicBadge
+                            v-for="tag in item.tags"
+                            :key="tag.id"
+                            color="#FFE4E1"
+                            :text="tag.name"
+                        />
+                        <span v-if="!item.tags?.length">-</span>
+                    </div>
                 </template>
 
                 <template #cell-location="{ item }">

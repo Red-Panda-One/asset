@@ -38,6 +38,6 @@ class Asset extends Model
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(Tag::class, 'asset_tag', 'asset_id', 'tag_id');
     }
 }
