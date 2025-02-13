@@ -96,8 +96,14 @@ class CategoriesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Categories $categories)
+    public function destroy(Categories $category)
     {
-        //
+        $category->delete();
+
+        return redirect()->route('categories.index')->with('flash', [
+            'banner' => 'Tag deleted successfully.',
+            'bannerStyle' =>'success',
+            'bannerTimeout' => 2000,
+        ]);
     }
 }
