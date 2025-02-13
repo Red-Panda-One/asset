@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Container from '../../../Components/Container.vue'
-import Table from '../../../Components/Table.vue'
+import Container from '@/Components/Container.vue'
+import Table from '@/Components/Table.vue'
 import { router } from '@inertiajs/vue3';
 import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 import { h } from 'vue';
