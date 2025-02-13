@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\TagController;
@@ -34,9 +35,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-])->get('/assets', function () {
-    return Inertia::render('Assets/Index');
-})->name('assets.index');
+])->resource('assets', AssetController::class);
 
 
 // Routes for Tags

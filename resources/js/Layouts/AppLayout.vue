@@ -32,7 +32,7 @@ const navigation = [
     { name: 'Assets', route: 'assets.index', pattern: 'assets.index' },
     { name: 'Categories', route: 'categories.index', pattern: 'categories.*' },
     { name: 'Tags', route: 'tags.index', pattern: 'tags.*' },
-    { name: 'Locations', route: 'locations.index', pattern: 'location.*' },
+    { name: 'Locations', route: 'locations.index', pattern: 'locations.*' },
     { name: 'QR Scanner', route: 'scanner.index', pattern: 'scanner.*' },
 ];
 </script>
