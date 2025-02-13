@@ -46,7 +46,11 @@ class TagController extends Controller
             'team_id' => $request->user()->currentTeam->id
         ]);
 
-        return redirect()->route('tags.index');
+        return redirect()->route('tags.index')->with('flash', [
+            'banner' => 'Tag updated successfully.',
+            'bannerStyle' =>'success',
+            'bannerTimeout' => 2000,
+        ]);
     }
 
     /**
@@ -72,7 +76,11 @@ class TagController extends Controller
 
         $tag->update($validated);
 
-        return redirect()->route('tags.index');
+        return redirect()->route('tags.index')->with('flash', [
+            'banner' => 'Tag updated successfully.',
+            'bannerStyle' =>'success',
+            'bannerTimeout' => 2000,
+        ]);
     }
 
     /**
@@ -80,9 +88,12 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
-
         $tag->delete();
 
-        return redirect()->route('tags.index');
+        return redirect()->route('tags.index')->with('flash', [
+            'banner' => 'Tag deleted successfully.',
+            'bannerStyle' => 'success',
+            'bannerTimeout' => 2000,
+        ]);
     }
 }

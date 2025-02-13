@@ -1,0 +1,49 @@
+:root {
+    /*
+    orange and Teal for tailwind colors
+    */
+
+    /* Primary Colors - Warm orange Theme */
+    --primary-darker: #A3411A;
+    --primary-dark: #C24E1D;
+    --primary: #ED681F;
+    --primary-light: #F48B4A;
+    --primary-lighter: #FFAD76;
+
+    /* Secondary Colors - Cool Teal */
+    --secondary-darker: #0B4D4A;
+    --secondary-dark: #0E6561;
+    --secondary: #117D78;
+    --secondary-light: #159993;
+    --secondary-lighter: #1AB5AE;
+
+    /* Neutral Colors */
+    --black: #1A1A1A;
+    --white: #FFFFFF;
+    --gray-darker: #333333;
+    --gray-dark: #666666;
+    --gray: #999999;
+    --gray-light: #CCCCCC;
+    --gray-lighter: #F5F5F5;
+
+    /* Semantic Colors */
+    --text-primary: var(--black);
+    --text-secondary: var(--gray-darker);
+    --text-muted: var(--gray-dark);
+    --text-inverse: var(--white);
+
+    --background-primary: var(--white);
+    --background-secondary: var(--gray-lighter);
+    --background-tertiary: var(--gray-light);
+
+    --button-primary: var(--primary);
+    --button-primary-hover: var(--primary-dark);
+    --button-primary-active: var(--primary-darker);
+
+    --button-secondary: var(--secondary);
+    --button-secondary-hover: var(--secondary-dark);
+    --button-secondary-active: var(--secondary-darker);
+
+    --border-color: var(--gray-light);
+    --border-color-hover: var(--gray);
+}
