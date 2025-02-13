@@ -11,7 +11,8 @@ class UpdateCategoriesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // Make sure its true for it to work
+        return true;
     }
 
     /**
@@ -22,7 +23,7 @@ class UpdateCategoriesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+          //
         ];
     }
 }

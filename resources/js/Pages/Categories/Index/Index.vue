@@ -29,7 +29,7 @@ const handleAdd = () => {
 
 const handleEdit = (category) => {
     console.log('Editing category:', category); // Debug log
-
+    router.get(route('categories.edit', category.id))
 };
 
 const handleDelete = (category) => {
