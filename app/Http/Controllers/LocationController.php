@@ -113,6 +113,12 @@ class LocationController extends Controller
      */
     public function destroy(Location $location)
     {
-        //
+        $location->delete();
+
+        return redirect()->route('locations.index')->with('flash', [
+            'banner' => 'Location deleted successfully.',
+            'bannerStyle' =>'success',
+            'bannerTimeout' => 2000,
+        ]);
     }
 }

@@ -4,6 +4,9 @@ import Container from '@/Components/Container.vue';
 import Table from '@/Components/Table.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import ConfirmationModal from '@/Components/ConfirmationModal.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 const props = defineProps({
     tags: Object,
@@ -16,6 +19,7 @@ const columns = [
     { key: 'description', label: 'Description' },
 ];
 
+
 const handleAdd = () => {
     router.visit(route('location.create'));
 };
@@ -24,11 +28,22 @@ const handleEdit = (location) => {
     router.visit(route('locations.edit', location.id));
 };
 
-const handleDelete = (location) => {
-    /*
-    if (confirm('Are you sure you want to delete this location?')) {
-        router.delete(route('locations.destroy', location.id));
-    } */
+const confirmingLocationDeletion = ref(false);
+const locationToDelete = ref(null);
+
+const confirmLocationDeletion = (location) => {
+    locationToDelete.value = location;
+    confirmingLocationDeletion.value = true;
+};
+
+const deleteLocation = () => {
+    router.delete(route('locations.destroy', locationToDelete.value), {
+        preserveScroll: true,
+        onSuccess: () => {
+            confirmingLocationDeletion.value = false;
+            locationToDelete.value = null;
+        },
+    });
 };
 
 const search = ref(props.filters.search || '');
@@ -58,7 +73,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 :items="tags.data"
                 @add="handleAdd"
                 @edit="handleEdit"
-                @delete="handleDelete"
+                @delete="confirmLocationDeletion"
             >
                 <template #header>
                     <div class="px-4 sm:px-6 lg:px-8">
@@ -117,6 +132,30 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                     </div>
                 </template>
             </Table>
+            <!-- Delete Confirmation Modal -->
+            <ConfirmationModal :show="confirmingLocationDeletion" @close="confirmingLocationDeletion = false">
+                <template #title>
+                    Delete Location
+                </template>
+
+                <template #content>
+                    Are you sure you want to delete this location? This action cannot be undone.
+                </template>
+
+                <template #footer>
+                    <SecondaryButton @click="confirmingLocationDeletion = false">
+                        Cancel
+                    </SecondaryButton>
+
+                    <PrimaryButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': false }"
+                        @click="deleteLocation"
+                    >
+                        Delete
+                    </PrimaryButton>
+                </template>
+            </ConfirmationModal>
         </Container>
     </AppLayout>
 </template>
