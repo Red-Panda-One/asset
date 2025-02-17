@@ -26,7 +26,7 @@ const form = useForm({
     category_id: props.asset.data.category_id,
     location_id: props.asset.data.location_id,
     tags: props.asset.data.tags?.map(tag => tag.id) || [],
-    image: null
+    image:null,
 });
 
 const imagePreview = ref(props.asset.data.image ? `/storage/${props.asset.data.image}` : null);
@@ -41,6 +41,9 @@ const handleImageUpload = (e) => {
         }
         form.image = file;
         fileName.value = file.name;
+        console.log(form.image);
+        console.log('IMAGE NAME' + fileName.value);
+
         const reader = new FileReader();
         reader.onload = (e) => {
             imagePreview.value = e.target.result;
@@ -70,11 +73,26 @@ const handleDrop = (e) => {
 };
 
 const submit = () => {
-    form.patch(route('assets.update', props.asset.data.id), {
+
+    console.log('Updating asset...');
+    console.log("ID: " + props.asset.data.id);
+    console.log("Name: " + form.name);
+    console.log("Description: " + form.description);
+    console.log("Value: " + form.value);
+    console.log("Category ID: " + form.category_id);
+    console.log("Location ID: " + form.location_id);
+    console.log("Tags: " + form.tags);
+    console.log("Image: " + form.image);
+    console.log("Old Image: " + props.asset.data.image);
+    console.log(form);
+    console.log(form.image);
+
+    form.post(route('assets.update', props.asset.data.id), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
             imagePreview.value = null;
+            window.scrollTo(0, 0);
         },
     });
 };
@@ -96,7 +114,6 @@ const submit = () => {
                         v-model="form.name"
                         type="text"
                         class="block mt-1 w-full"
-                        required
                     />
                     <InputError :message="form.errors.name" class="mt-2" />
                 </div>
@@ -167,7 +184,7 @@ const submit = () => {
                     <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md">
                         <img :src="imagePreview" class="object-cover w-16 h-16 rounded" />
                         <div class="ml-4">
-                            <p class="text-sm text-gray-700">{{ fileName || 'Current image' }}</p>
+                            <p class="text-sm text-gray-700">{{ form.image? 'form:' + form.image.name : fileName || 'Current image' }}</p>
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
