@@ -63,8 +63,7 @@ const handleDrop = (e) => {
 };
 
 const submit = () => {
-    form.patch(route('locations.update', props.location.data.id), {
-        _method: 'PUT',
+    form.post(route('locations.update', props.location.data.id), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();

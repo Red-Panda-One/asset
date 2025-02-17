@@ -37,6 +37,25 @@ Route::middleware([
     'verified',
 ])->resource('assets', AssetController::class);
 
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->post('/assets/{asset}', [AssetController::class, 'update'])->name('assets.update.post');
+
+// Routes for Location
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->resource('locations', LocationController::class);
+
+// Routes for Location
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->post('locations/{location}', [LocationController::class, 'update'])->name('locations.update.post');
 
 // Routes for Tags
 Route::middleware([
@@ -52,14 +71,7 @@ Route::middleware([
     'verified',
 ])->resource('categories', CategoriesController::class);
 
-// Routes for Location
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->resource('locations', LocationController::class);
-
-// Routes for Assets
+// Routes for Scanner
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
