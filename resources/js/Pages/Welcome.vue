@@ -1,5 +1,8 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { useVersion } from '@/Composables/useVersion';
+
+const { version } = useVersion();
 
 defineProps({
     canLogin: {
@@ -90,7 +93,7 @@ function handleImageError() {
                 </main>
                 <footer class="py-8 mt-20 text-sm text-center text-emerald-950/70 dark:text-lime-100/70">
                     <p>Asset RPO by Red Panda One © 2025</p>
-                    <p class="mt-1">Seedling 0.0.0</p>
+                    <p class="mt-1">Seedling {{ version }}</p>
                 </footer>
             </div>
         </div>
