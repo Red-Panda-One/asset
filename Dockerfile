@@ -26,10 +26,10 @@ RUN npm run build
 # Use Nginx + PHP-FPM 8.3 as the base image for the application
 FROM jkaninda/nginx-php-fpm:8.3
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Ensure version.md is copied first
+COPY version.md ./
 COPY . .
 
 # Configure PHP-FPM and Nginx
