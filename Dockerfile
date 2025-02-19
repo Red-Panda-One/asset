@@ -15,6 +15,10 @@ RUN npm ci
 # Copy all project files to the container
 COPY . .
 
+# Copy the inject.sh script
+COPY scripts/inject.sh /usr/local/bin/inject.sh
+RUN chmod +x /usr/local/bin/inject.sh
+
 # Build frontend assets (compiles and minifies JS/CSS)
 RUN npm run build
 
@@ -47,3 +51,6 @@ COPY --from=js-builder /var/www/html/public/build/ ./public/build/
 
 ENV DOCUMENT_ROOT=/var/www/html/public
 
+
+# Run the inject.sh script before starting the application
+CMD ["sh", "-c", "inject.sh && php-fpm"]
