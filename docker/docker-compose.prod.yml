@@ -18,18 +18,17 @@ services:
       interval: 10s
       retries: 10
     volumes:
-      - ./db:/var/lib/postgresql/data 
+      - ./db:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: asset
       POSTGRES_USER: assetuser
       POSTGRES_PASSWORD: assetpass
     restart: 'on-failure:5'
   asset:
-    image: 'asset-rpo:dev'
+    image: 'zurielbax/asset-rpo:dev'
     container_name: asset
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - './asset/data:/data:rw'
       - './asset/conf:/conf:rw'
