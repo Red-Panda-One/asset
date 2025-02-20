@@ -18,18 +18,20 @@ services:
       interval: 10s
       retries: 10
     volumes:
-      - '/volume/docker/asset/db:/var/lib/postgresql/data:rw'
+      - ./db:/var/lib/postgresql/data  # Changed from /volume/docker/asset/db
     environment:
       POSTGRES_DB: asset
       POSTGRES_USER: assetuser
       POSTGRES_PASSWORD: assetpass
     restart: 'on-failure:5'
   asset:
-    image: 'zurielbax/asset-rpo:dev'
+    image: 'asset-rpo:dev'
     container_name: asset
+    ports:
+      - "8080:80"
     volumes:
-      - '/volume/docker/asset/data:/data:rw'
-      - '/volume/docker/asset/conf:/conf:rw'
+      - './asset/data:/data:rw'
+      - './asset/conf:/conf:rw'
     environment:
       PHP_TZ: America/New_York
       TIMEZONE: America/New_York
@@ -39,7 +41,7 @@ services:
       APP_KEY: 'base64:PqkYgeKqq3hdHZTvL6ENXdhgyyoCDZYj9wofOcw0l4o='
       APP_ENV: local
       APP_DEBUG: true
-      APP_URL: 'https://demoasset.zurielbm.com'
+      APP_URL: 'http://127.0.0.1'
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
@@ -52,10 +54,11 @@ services:
       SESSION_LIFETIME: 240
       SESSION_ENCRYPT: false
       SESSION_PATH: /
-      SESSION_DOMAIN: demoasset.zurielbm.com
-      SANCTUM_STATEFUL_DOMAINS: demoasset.zurielbm.com
+      SESSION_DOMAIN: null
+      SANCTUM_STATEFUL_DOMAINS: '127.0.0.1'
       STARTUP_DELAY: 5
       TRUSTED_PROXIES: '*'
     restart: 'on-failure:5'
     depends_on:
-      - db
+      db:
+        condition: service_healthy  
