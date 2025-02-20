@@ -52,7 +52,7 @@ const { version } = useVersion();
                     </svg>
                     <h2 class="flex text-xl font-semibold text-gray-900 ms-3 dark:text-white">
                         <a href="https://#">
-                            <p>Version system</p>
+                            <p>Version System</p>
                             <p class="text-sm">Seedling {{ version }}</p>
                         </a>
                     </h2>
