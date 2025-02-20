@@ -5,6 +5,7 @@ import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 import { PhotoIcon } from '@heroicons/vue/24/solid';
 import { useQRCode } from '@vueuse/integrations/useQRCode';
 import { ref, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
     asset: Object,
@@ -24,6 +25,8 @@ const downloadQR = () => {
     link.click();
 };
 
+const page = usePage();
+
 const printLabel = () => {
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
@@ -32,22 +35,85 @@ const printLabel = () => {
                 <title>Asset Label - ${props.asset.data.name}</title>
                 <style>
                     @page { size: 3.5in 1.1in; margin: 0; }
-                    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 1.1in; width: 3.5in; }
-                    .container { display: flex; align-items: center; gap: 0.25in; padding: 0.1in; }
-                    img { height: 0.9in; width: 0.9in; }
-                    h2 { font-family: Arial, sans-serif; color: #374151; font-size: 12pt; margin: 0; max-width: 2in; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        height: 1.1in;
+                        width: 3.5in;
+                    }
+                    .label-container {
+                        display: flex;
+                        height: 100%;
+                    }
+                    .qr-section {
+                        width: 1.1in;
+                        height: 1.1in;
+                        flex-shrink: 0;
+                    }
+                    .qr-section img {
+                        width: 1.1in;
+                        height: 1.1in;
+                    }
+                    .info-section {
+                        flex-grow: 1;
+                        padding: 0.1in;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        border-left: 2px solid black;
+                    }
+                    .property-text {
+                        font-family: Arial, sans-serif;
+                        font-size: 8pt;
+                        color: #374151;
+                        margin: 0;
+                    }
+                    .team-name {
+                        font-family: Arial, sans-serif;
+                        font-size: 14pt;
+                        font-weight: bold;
+                        color: #000;
+                        margin: 0;
+                        margin-bottom: 0.1in;
+                    }
+                    .asset-name {
+                        font-family: Arial, sans-serif;
+                        font-size: 12pt;
+                        font-weight: bold;
+                        color: #000;
+                        margin: 0;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    .asset-id {
+                        font-family: Arial, sans-serif;
+                        font-size: 10pt;
+                        color: #374151;
+                        margin: 0;
+                    }
                 </style>
             </head>
             <body>
-                <div class="container">
-                    <img src="${qrcode.value}" alt="Asset QR Code">
-                    <h2>${props.asset.data.name}</h2>
+                <div class="label-container">
+                    <div class="qr-section">
+                        <img src="${qrcode.value}" alt="Asset QR Code">
+                    </div>
+                    <div class="info-section">
+                        <p class="property-text">PROPERTY OF</p>
+                        <p class="team-name">${page.props.auth.user.current_team.name}</p>
+                        <p class="asset-name">${props.asset.data.name}</p>
+                        <p class="asset-id">${props.asset.data.id}</p>
+                    </div>
                 </div>
             </body>
         </html>
     `);
     printWindow.document.close();
-    printWindow.print();
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 250);
 };
 </script>
 
@@ -157,7 +223,7 @@ const printLabel = () => {
                                             @click="printLabel"
                                             class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                         >
-                                            Print Label
+                                            Print Label 1.1x3.5 in
                                         </button>
                                     </div>
                                 </div>
