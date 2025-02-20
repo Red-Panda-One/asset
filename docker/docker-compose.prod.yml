@@ -18,17 +18,18 @@ services:
       interval: 10s
       retries: 10
     volumes:
-      - ./db:/var/lib/postgresql/data  # Changed from /volume/docker/asset/db
+      - ./db:/var/lib/postgresql/data 
     environment:
       POSTGRES_DB: asset
       POSTGRES_USER: assetuser
       POSTGRES_PASSWORD: assetpass
     restart: 'on-failure:5'
   asset:
-    image: 'zurielbax/asset-rpo:dev'
+    image: 'asset-rpo:dev'
     container_name: asset
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     volumes:
       - './asset/data:/data:rw'
       - './asset/conf:/conf:rw'
@@ -37,11 +38,12 @@ services:
       TIMEZONE: America/New_York
       PUID: 1000
       PGID: 1000
-      APP_NAME: Mariushosting
+      APP_NAME: Asset RPO
       APP_KEY: 'base64:PqkYgeKqq3hdHZTvL6ENXdhgyyoCDZYj9wofOcw0l4o='
-      APP_ENV: local
-      APP_DEBUG: true
-      APP_URL: 'http://127.0.0.1'
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_URL: 'https://rpo.com'
+      ASSET_URL: 'https://rpo.com'
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
@@ -52,10 +54,10 @@ services:
       CACHE_STORE: file
       SESSION_DRIVER: file
       SESSION_LIFETIME: 240
-      SESSION_ENCRYPT: false
+      SESSION_ENCRYPT: true
       SESSION_PATH: /
-      SESSION_DOMAIN: null
-      SANCTUM_STATEFUL_DOMAINS: '127.0.0.1'
+      SESSION_DOMAIN: 'rpo.com'
+      SANCTUM_STATEFUL_DOMAINS: 'rpo.com'
       STARTUP_DELAY: 5
       TRUSTED_PROXIES: '*'
     restart: 'on-failure:5'
