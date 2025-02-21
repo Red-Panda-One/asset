@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from "../../../Components/Container.vue";
 import { useForm } from '@inertiajs/vue3';
@@ -9,35 +9,47 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { ref } from 'vue';
 
-const colorPicker = ref(null);
+interface Category {
+    id: string;
+    name: string;
+    description: string;
+    color: string;
+}
 
-const props = defineProps({
-    category: {
-        type: Object,
-        required: true
-    }
-});
+interface CategoryData {
+    data: Category;
+}
 
+interface Props {
+    category: CategoryData;
+}
 
-const form = useForm({
+interface CategoryForm {
+    name: string;
+    description: string;
+    color: string;
+}
+
+const colorPicker = ref<HTMLInputElement | null>(null);
+
+const props = defineProps<Props>();
+
+const form = useForm<CategoryForm>({
     name: props.category.data.name,
     description: props.category.data.description || '',
     color: props.category.data.color || '#646a75'
-})
+});
 
-console.log(props.category);
-
-
-const generateRandomColor = () => {
+const generateRandomColor = (): void => {
     const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
     form.color = randomColor;
 };
 
-const openColorPicker = () => {
-    colorPicker.value.click();
+const openColorPicker = (): void => {
+    colorPicker.value?.click();
 };
 
-const updateCategory = () => {
+const updateCategory = (): void => {
     form.patch(route('categories.update', props.category.data.id), {
         preserveScroll: true,
         onSuccess: () => {

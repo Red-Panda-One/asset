@@ -17,3 +17,7 @@
 
 ## 0.3.1
 - Added ts to Tags
+
+## 0.3.2
+- Added ts to Categories
+
