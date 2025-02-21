@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\KitResource;
 use App\Models\Kit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
+
 class KitController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kits = Kit::where('team_id', auth()->user()->currentTeam->id)->get();
         return Inertia::render('Kits/Index', [
-            'kits' => $kits
+            'kits' => KitResource::collection(
+                Kit::where('team_id', $request->user()->currentTeam->id)
+                    ->paginate(20)
+            ),
+            'filters' => request()->all(['search', 'per_page'])
         ]);
     }
 
@@ -33,7 +38,7 @@ class KitController extends Controller
         $kitData = $request->only(['name', 'description']);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('locations', 'public');
+            $path = $request->file('image')->store('kits', 'public');
             $kitData['image'] = $path;
         }
 
@@ -52,14 +57,14 @@ class KitController extends Controller
     public function show(Kit $kit)
     {
         return Inertia::render('Kits/Show', [
-            'kit' => $kit
+            'kit' => new KitResource($kit)
         ]);
     }
 
     public function edit(Kit $kit)
     {
         return Inertia::render('Kits/Edit/Index', [
-            'kit' => $kit
+            'kit' => new KitResource($kit)
         ]);
     }
 
@@ -71,20 +76,21 @@ class KitController extends Controller
             'image' => ['nullable', 'image', 'max:4096']
         ]);
 
-        $kit->name = $request->name;
-        $kit->description = $request->description;
+
+        $kitData = $request->only(['name', 'description']);
 
         if ($request->hasFile('image')) {
-            if ($kit->image) {
-                Storage::disk('public')->delete($kit->image);
-            }
             $path = $request->file('image')->store('kits', 'public');
-            $kit->image = $path;
+            $kitData['image'] = $path;
         }
 
-        $kit->save();
+        $kit->update($kitData);
 
-        return redirect()->route('kits.index');
+        return redirect()->route('kits.index')->with('flash', [
+            'banner' => 'Kit updated successfully.',
+            'bannerStyle' => 'success',
+            'bannerTimeout' => 2000,
+        ]);
     }
 
     public function destroy(Kit $kit)

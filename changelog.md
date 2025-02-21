@@ -32,4 +32,6 @@
 
 ## 0.3.6
 - added kit and kit_asset tables
-- added creation of kit
+- added creation for kit
+- added edit for kit
+- added delete for kit
