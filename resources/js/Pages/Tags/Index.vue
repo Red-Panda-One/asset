@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Table from '@/Components/Table.vue';
 import { ref } from 'vue';
@@ -10,16 +10,48 @@ import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 import Container from '@/Components/Container.vue'
 import { h } from 'vue';
 
+interface Tag {
+    id: string;
+    name: string;
+    description: string;
+}
 
-const props = defineProps({
-    tags: {
-        type: Object,
-        required: true,
-    }
-});
+interface Column {
+    key: keyof Tag;
+    label: string;
+    render?: (item: Tag) => any;
+}
 
-const columns = [
-    { key: 'name', label: 'Name', render: (item) => (
+interface Filters {
+    search?: string;
+    per_page?: string;
+}
+
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+interface PaginationMeta {
+    from: number;
+    to: number;
+    total: number;
+    links: PaginationLink[];
+}
+
+interface TagsData {
+    data: Tag[];
+    meta: PaginationMeta;
+}
+
+const props = defineProps<{
+    tags: TagsData;
+    filters: Filters;
+}>();
+
+const columns: Column[] = [
+    { key: 'name', label: 'Name', render: (item: Tag) => (
         h(NeumorphicBadge, {
             color: '#F2F4F7',
             text: item.name
@@ -29,36 +61,32 @@ const columns = [
 ];
 
 const confirmingTagDeletion = ref(false);
-const tagToDelete = ref(null);
+const tagToDelete = ref<Tag | null>(null);
 
 const handleAdd = () => {
-    router.get(route('tags.create'));
+    router.visit(route('tags.create'));
 };
 
-const handleEdit = (tag) => {
-    router.get(route('tags.edit', tag.id));
+const handleEdit = (tag: Tag) => {
+    router.visit(route('tags.edit', tag.id));
 };
 
-const confirmTagDeletion = (tag) => {
+const confirmTagDeletion = (tag: Tag) => {
     tagToDelete.value = tag;
     confirmingTagDeletion.value = true;
 };
 
-const deleteTag = (tag) => {
-    console.log('Deleting tag:', tag); // Debug log
-    console.log('Tag ID', tag.id);
+const deleteTag = () => {
+    if (!tagToDelete.value) return;
 
-
-    router.delete(route('tags.destroy', tagToDelete.value), {
+    router.delete(route('tags.destroy', tagToDelete.value.id), {
         preserveScroll: true,
         onSuccess: () => {
             confirmingTagDeletion.value = false;
             tagToDelete.value = null;
         },
     });
-
 };
-
 </script>
 
 <template>

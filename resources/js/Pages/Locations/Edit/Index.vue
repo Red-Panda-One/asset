@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import { useForm } from '@inertiajs/vue3';
@@ -8,14 +8,30 @@ import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref } from 'vue';
 
-const props = defineProps({
-    location: {
-        type: Object,
-        required: true
-    }
-});
+interface LocationData {
+    id: string;
+    name: string;
+    description: string;
+    address: string;
+    image?: string;
+}
 
-const form = useForm({
+interface LocationProps {
+    location: {
+        data: LocationData;
+    };
+}
+
+const props = defineProps<LocationProps>();
+
+interface LocationForm {
+    name: string;
+    description: string;
+    address: string;
+    image: File | null;
+}
+
+const form = useForm<LocationForm>({
     name: props.location.data.name,
     description: props.location.data.description,
     address: props.location.data.address,
@@ -25,7 +41,8 @@ const form = useForm({
 const imagePreview = ref(props.location.data.image ? `/storage/${props.location.data.image}` : null);
 const fileName = ref('');
 
-const handleImageUpload = (e) => {
+const handleImageUpload = (e: Event) => {
+    if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
     const file = e.target.files[0];
     if (file) {
         if (file.size > 4 * 1024 * 1024) {
@@ -42,7 +59,7 @@ const handleImageUpload = (e) => {
     }
 };
 
-const handleDrop = (e) => {
+const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {

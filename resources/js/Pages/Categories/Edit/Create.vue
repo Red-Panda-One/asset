@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
@@ -8,24 +8,30 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { ref } from 'vue';
 
-const colorPicker = ref(null);
+interface CategoryForm {
+    name: string;
+    description: string;
+    color: string;
+}
 
-const form = useForm({
+const colorPicker = ref<HTMLInputElement | null>(null);
+
+const form = useForm<CategoryForm>({
     name: '',
     description: '',
     color: '#646a75'
 });
 
-const generateRandomColor = () => {
+const generateRandomColor = (): void => {
     const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
     form.color = randomColor;
 };
 
-const openColorPicker = () => {
-    colorPicker.value.click();
+const openColorPicker = (): void => {
+    colorPicker.value?.click();
 };
 
-const createCategory = () => {
+const createCategory = (): void => {
     form.post(route('categories.store'), {
         preserveScroll: true,
         onSuccess: () => {
