@@ -26,3 +26,6 @@
 
 ## 0.3.4
 - Added ts to QR Codes
+
+## 0.3.5
+- fixed some ts warnings

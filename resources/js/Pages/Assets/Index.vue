@@ -11,6 +11,12 @@ import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 import { PhotoIcon } from '@heroicons/vue/24/solid';
 import type { Asset, AssetsResponse, AssetFilters } from '@/types/asset';
 
+declare function route(name: 'assets.create'): string;
+declare function route(name: 'assets.edit', id: string): string;
+declare function route(name: 'assets.destroy', id: string): string;
+declare function route(name: 'assets.index'): string;
+declare function route(name: 'assets.show', id: string): string;
+
 interface Props {
     assets: AssetsResponse;
     filters: AssetFilters;
@@ -45,8 +51,8 @@ const confirmAssetDeletion = (asset: Asset): void => {
 
 const deleteAsset = (): void => {
     if (!assetToDelete.value) return;
-    
-    router.delete(route('assets.destroy', assetToDelete.value), {
+
+    router.delete(route('assets.destroy', assetToDelete.value.id), {
         preserveScroll: true,
         onSuccess: () => {
             confirmingAssetDeletion.value = false;

@@ -19,7 +19,7 @@ const startScanner = async (): Promise<void> => {
         console.log('Initializing QR scanner...');
         error.value = '';
         qrScanner.value = new QrScanner(
-            videoElement.value,
+            videoElement.value as HTMLVideoElement,
             result => {
                 console.log('QR code detected:', result.data);
                 if (result.data) {

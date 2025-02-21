@@ -9,6 +9,8 @@ import { usePage } from '@inertiajs/vue3';
 import thermalIcon from '@/../svg/thermal-lable-icon.svg';
 import type { AssetResponse } from '@/types/asset';
 
+declare function route(name: 'assets.show', id: string): string;
+
 interface Props {
     asset: AssetResponse;
 }
