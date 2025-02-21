@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
@@ -7,10 +7,13 @@ import { useQRCode } from '@vueuse/integrations/useQRCode';
 import { ref, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import thermalIcon from '@/../svg/thermal-lable-icon.svg';
+import type { AssetResponse } from '@/types/asset';
 
-const props = defineProps({
-    asset: Object,
-});
+interface Props {
+    asset: AssetResponse;
+}
+
+const props = defineProps<Props>();
 
 const assetUrl = computed(() => route('assets.show', props.asset.data.id));
 const qrcode = useQRCode(assetUrl, {
@@ -19,7 +22,7 @@ const qrcode = useQRCode(assetUrl, {
     width: 200,
 });
 
-const downloadQR = () => {
+const downloadQR = (): void => {
     const link = document.createElement('a');
     link.download = `asset-${props.asset.data.id}-qr.png`;
     link.href = qrcode.value;
@@ -28,8 +31,9 @@ const downloadQR = () => {
 
 const page = usePage();
 
-const printLabel = () => {
+const printLabel = (): void => {
     const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
     printWindow.document.write(`
         <html>
             <head>
