@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\KitController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\TagController;
 use Illuminate\Foundation\Application;
@@ -50,12 +51,24 @@ Route::middleware([
     'verified',
 ])->resource('locations', LocationController::class);
 
-// Routes for Location
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->post('locations/{location}', [LocationController::class, 'update'])->name('locations.update.post');
+
+// Routes for Kit
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->resource('kits', KitController::class);
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->post('kits/{kit}', [KitController::class, 'update'])->name('kit.update.post');
 
 // Routes for Tags
 Route::middleware([
@@ -80,11 +93,3 @@ Route::middleware([
     return Inertia::render('Scanner/Index');
 })->name('scanner.index');
 
-// Routes for Kit
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->get('/kit', function () {
-    return Inertia::render('Kits/Index');
-})->name('kit.index');

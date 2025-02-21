@@ -29,3 +29,7 @@
 
 ## 0.3.5
 - fixed some ts warnings
+
+## 0.3.6
+- added kit and kit_asset tables
+- added creation of kit
