@@ -6,6 +6,7 @@ import { PhotoIcon } from '@heroicons/vue/24/solid';
 import { useQRCode } from '@vueuse/integrations/useQRCode';
 import { ref, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import thermalIcon from '@/../svg/thermal-lable-icon.svg';
 
 const props = defineProps({
     asset: Object,
@@ -45,15 +46,6 @@ const printLabel = () => {
                         display: flex;
                         height: 100%;
                     }
-                    .qr-section {
-                        width: 1.1in;
-                        height: 1.1in;
-                        flex-shrink: 0;
-                    }
-                    .qr-section img {
-                        width: 1.1in;
-                        height: 1.1in;
-                    }
                     .info-section {
                         flex-grow: 1;
                         padding: 0.1in;
@@ -92,12 +84,33 @@ const printLabel = () => {
                         color: #374151;
                         margin: 0;
                     }
+                    .qr-section {
+                        width: 1.1in;
+                        height: 1.1in;
+                        flex-shrink: 0;
+                        padding-left: 0.05in;
+                        position: relative;
+                    }
+                    .qr-section img {
+                        width: 1.05in;
+                        height: 1.05in;
+                    }
+                    .thermal-icon {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 30% !important;
+                        height: 30% !important;
+                        z-index: 10;
+                    }
                 </style>
             </head>
             <body>
                 <div class="label-container">
                     <div class="qr-section">
                         <img src="${qrcode.value}" alt="Asset QR Code">
+                        <img src="${thermalIcon}" alt="Thermal Label Icon" class="thermal-icon">
                     </div>
                     <div class="info-section">
                         <p class="property-text">PROPERTY OF</p>

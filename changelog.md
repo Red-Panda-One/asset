@@ -9,3 +9,4 @@
 
 ## 0.2.1
 - Fixed Scanner to work with new ULIDs
+- Redid Design for Label 1.1x3.5in
