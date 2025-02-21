@@ -23,3 +23,6 @@
 
 ## 0.3.3
 - Added ts to Assets
+
+## 0.3.4
+- Added ts to QR Codes
