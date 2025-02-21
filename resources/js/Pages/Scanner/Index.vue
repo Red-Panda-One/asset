@@ -37,7 +37,7 @@ const startScanner = async () => {
 
                         console.log('Extracted asset ID:', assetId);
 
-                        if (assetId && /^\d+$/.test(assetId)) {
+                        if (assetId) {
                             console.log('Navigating to asset:', route('assets.show', assetId));
                             router.visit(route('assets.show', assetId));
                         } else {
