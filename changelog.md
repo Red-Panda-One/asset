@@ -14,3 +14,6 @@
 ## 0.3.0
 - Added TypeScript
 - Added ts to Location
+
+## 0.3.1
+- Added ts to Tags
