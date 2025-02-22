@@ -24,7 +24,7 @@ const page = usePage();
 
 const downloadQR = (): void => {
     const link = document.createElement('a');
-    link.download = `item-${props.id}-qr.png`;
+    link.download = `${props.type? props.type: "ITEM" }-${props.name}-${props.id}-qr.png`;
     link.href = qrcode.value;
     link.click();
 };
@@ -146,9 +146,9 @@ const printLabel = (): void => {
 <template>
     <div class="flex flex-col items-center space-y-4">
         <img :src="qrcode" :alt="`QR Code for ${name}`" class="w-48 h-48">
-        <div class="flex flex-col items-center gap-4">
-            <div class="flex items-center gap-2">
-                <label class="relative inline-flex items-center cursor-pointer">
+        <div class="flex flex-col gap-4 items-center">
+            <div class="flex gap-2 items-center">
+                <label class="inline-flex relative items-center cursor-pointer">
                     <input type="checkbox" v-model="colorMode" :true-value="'color'" :false-value="'bw'" class="sr-only peer">
                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                     <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{ colorMode === 'color' ? 'Color' : 'Black & White' }}</span>
