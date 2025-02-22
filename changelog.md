@@ -54,3 +54,4 @@
 
 ## 0.3.10
 - Added a Team logo for the label
+- Ability to change logo on label

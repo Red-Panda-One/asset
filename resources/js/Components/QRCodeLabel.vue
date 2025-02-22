@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useQRCode } from '@vueuse/integrations/useQRCode';
-import { computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import thermalIcon from '@/../svg/thermal-lable-icon.svg';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const colorMode = ref('color');
 
 const qrcode = useQRCode(props.url, {
     errorCorrectionLevel: 'H',
@@ -31,6 +32,8 @@ const downloadQR = (): void => {
 const printLabel = (): void => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
+    const team = (page.props.auth as any).user.current_team;
+    const logoSrc = colorMode.value === 'color' ? team.colored_logo : team.bw_logo;
     printWindow.document.write(`
         <html>
             <head>
@@ -119,11 +122,11 @@ const printLabel = (): void => {
                 <div class="label-container">
                     <div class="qr-section">
                         <img src="${qrcode.value}" alt="QR Code">
-                        <img src="${thermalIcon}" alt="Thermal Label Icon" class="thermal-icon">
+                        <img src="${logoSrc || thermalIcon}" alt="Thermal Label Icon" class="thermal-icon">
                     </div>
                     <div class="info-section">
                         <p class="property-text">PROPERTY OF</p>
-                        <p class="team-name">${page.props.auth.user.current_team.name}</p>
+                        <p class="team-name">${team.name}</p>
                         <p class="item-type">${props.type? props.type: "ITEM" }</p>
                         <p class="item-name">${props.name}</p>
                         <p class="item-id">${props.id}</p>
@@ -143,19 +146,28 @@ const printLabel = (): void => {
 <template>
     <div class="flex flex-col items-center space-y-4">
         <img :src="qrcode" :alt="`QR Code for ${name}`" class="w-48 h-48">
-        <div class="flex gap-4">
-            <button
-                @click="downloadQR"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-                Download QR Code
-            </button>
-            <button
-                @click="printLabel"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-                Print Label 1.1x3.5 in
-            </button>
+        <div class="flex flex-col items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="colorMode" :true-value="'color'" :false-value="'bw'" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{ colorMode === 'color' ? 'Color' : 'Black & White' }}</span>
+                </label>
+            </div>
+            <div class="flex gap-4">
+                <button
+                    @click="downloadQR"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    Download QR Code
+                </button>
+                <button
+                    @click="printLabel"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    Print Label 1.1x3.5 in
+                </button>
+            </div>
         </div>
     </div>
 </template>
