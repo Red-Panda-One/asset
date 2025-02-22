@@ -66,7 +66,7 @@ const handleBulkDelete = (selectedItems) => {
                     :columns="columns"
                     :items="items"
                     :selectable="true"
-                    @add="handleAdd"
+                    @cta="handleAdd"
                     @edit="handleEdit"
                     @bulk-edit="handleBulkEdit"
                     @bulk-delete="handleBulkDelete"

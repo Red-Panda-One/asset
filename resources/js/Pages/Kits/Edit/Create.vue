@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import { useForm } from '@inertiajs/vue3';
@@ -6,34 +6,25 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SearchMultiselect from '@/Components/SearchMultiselect.vue';
 import { ref } from 'vue';
 
-const props = defineProps({
-    asset: {
-        type: Object,
-        required: true
-    },
-    categories: Object,
-    locations: Object,
-    tags: Object,
-    selectedTags: Array,
+interface KitForm {
+    name: string;
+    description: string;
+    image: File | null;
+}
+
+const form = useForm<KitForm>({
+    name: '',
+    description: '',
+    image: null
 });
 
-const form = useForm({
-    name: props.asset.data.name,
-    description: props.asset.data.description,
-    value: props.asset.data.value,
-    category_id: props.asset.data.category_id,
-    location_id: props.asset.data.location_id,
-    tags: props.asset.data.tags?.map(tag => tag.id) || [],
-    image:null,
-});
-
-const imagePreview = ref(props.asset.data.image ? `/storage/${props.asset.data.image}` : null);
+const imagePreview = ref(null);
 const fileName = ref('');
 
-const handleImageUpload = (e) => {
+const handleImageUpload = (e: Event) => {
+    if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
     const file = e.target.files[0];
     if (file) {
         if (file.size > 4 * 1024 * 1024) {
@@ -42,9 +33,6 @@ const handleImageUpload = (e) => {
         }
         form.image = file;
         fileName.value = file.name;
-        console.log(form.image);
-        console.log('IMAGE NAME' + fileName.value);
-
         const reader = new FileReader();
         reader.onload = (e) => {
             imagePreview.value = e.target.result;
@@ -53,7 +41,7 @@ const handleImageUpload = (e) => {
     }
 };
 
-const handleDrop = (e) => {
+const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
@@ -74,9 +62,8 @@ const handleDrop = (e) => {
 };
 
 const submit = () => {
-
-    form.post(route('assets.update', props.asset.data.id), {
-        preserveScroll: true,
+    form.post(route('kits.store'), {
+        preserveState: true,
         onSuccess: () => {
             form.reset();
             imagePreview.value = null;
@@ -84,14 +71,13 @@ const submit = () => {
         },
     });
 };
-
 </script>
 
 <template>
-    <AppLayout title="Edit Asset">
+    <AppLayout title="Add Kit">
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                Edit Asset
+                Add Kit
             </h2>
         </template>
         <Container>
@@ -103,20 +89,9 @@ const submit = () => {
                         v-model="form.name"
                         type="text"
                         class="block mt-1 w-full"
+                        required
                     />
                     <InputError :message="form.errors.name" class="mt-2" />
-                </div>
-
-                <div>
-                    <InputLabel for="value" value="Value" />
-                    <TextInput
-                        id="value"
-                        v-model="form.value"
-                        type="number"
-                        step="0.01"
-                        class="block mt-1 w-full"
-                    />
-                    <InputError :message="form.errors.value" class="mt-2" />
                 </div>
 
                 <div>
@@ -173,64 +148,15 @@ const submit = () => {
                     <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md">
                         <img :src="imagePreview" class="object-cover w-16 h-16 rounded" />
                         <div class="ml-4">
-                            <p class="text-sm text-gray-700">{{ form.image? 'form:' + form.image.name : fileName || 'Current image' }}</p>
+                            <p class="text-sm text-gray-700">{{ fileName }}</p>
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
                 </div>
 
-                <!-- Tag/Location/Category-->
-                <div>
-        <InputLabel for="category" value="Category" />
-        <CustomMultiselect
-            id="category"
-            v-model="form.category_id"
-            :options="categories.data"
-            label="name"
-            value-prop="id"
-            placeholder="Select a category"
-            class="mt-1"
-        />
-        <InputError :message="form.errors.category_id" class="mt-2" />
-    </div>
-
-    <div>
-        <InputLabel for="location" value="Location" />
-        <CustomMultiselect
-            id="location"
-            v-model="form.location_id"
-            :options="locations.data"
-            label="name"
-            value-prop="id"
-            placeholder="Select a location"
-            class="mt-1"
-        />
-        <InputError :message="form.errors.location_id" class="mt-2" />
-    </div>
-
-    <div>
-        <InputLabel for="tags" value="Tags" />
-        <div class="relative">
-
-            <SearchMultiselect
-                id="tags"
-                v-model="form.tags"
-                :options="tags.data"
-                label="name"
-                value-prop="id"
-                :multiple=true
-                placeholder="Search and select tags"
-                class="mt-1"
-            />
-        </div>
-        <InputError :message="form.errors.tags" class="mt-2" />
-    </div>
-
-
-
                 <div class="flex justify-end">
                     <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                        Update Asset
+                        Create Kit
                     </PrimaryButton>
                 </div>
             </form>

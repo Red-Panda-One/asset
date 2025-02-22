@@ -1,54 +1,22 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 import { PhotoIcon } from '@heroicons/vue/24/solid';
-import { useQRCode } from '@vueuse/integrations/useQRCode';
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
+import QRCodeLabel from '@/Components/QRCodeLabel.vue';
+import type { AssetResponse } from '@/types/asset';
 
-const props = defineProps({
-    asset: Object,
-});
+declare function route(name: 'assets.show', id: string): string;
+
+interface Props {
+    asset: AssetResponse;
+}
+
+const props = defineProps<Props>();
 
 const assetUrl = computed(() => route('assets.show', props.asset.data.id));
-const qrcode = useQRCode(assetUrl, {
-    errorCorrectionLevel: 'H',
-    margin: 3,
-    width: 200,
-});
 
-const downloadQR = () => {
-    const link = document.createElement('a');
-    link.download = `asset-${props.asset.data.id}-qr.png`;
-    link.href = qrcode.value;
-    link.click();
-};
-
-const printLabel = () => {
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-            <head>
-                <title>Asset Label - ${props.asset.data.name}</title>
-                <style>
-                    @page { size: 3.5in 1.1in; margin: 0; }
-                    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 1.1in; width: 3.5in; }
-                    .container { display: flex; align-items: center; gap: 0.25in; padding: 0.1in; }
-                    img { height: 0.9in; width: 0.9in; }
-                    h2 { font-family: Arial, sans-serif; color: #374151; font-size: 12pt; margin: 0; max-width: 2in; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <img src="${qrcode.value}" alt="Asset QR Code">
-                    <h2>${props.asset.data.name}</h2>
-                </div>
-            </body>
-        </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-};
 </script>
 
 <template>
@@ -138,29 +106,12 @@ const printLabel = () => {
                         <div class="sm:col-span-2">
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">QR Code</dt>
                             <dd class="mt-1">
-                                <div class="flex flex-col items-center space-y-4">
-                                    <img :src="qrcode" alt="Asset QR Code" class="w-48 h-48">
-                                    <div class="flex gap-4">
-                                        <button
-                                            @click="downloadQR"
-                                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                        >
-                                            Download QR Code
-                                        </button>
-                                        <button
-                                            @click="printQR"
-                                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                        >
-                                            Print QR Code
-                                        </button>
-                                        <button
-                                            @click="printLabel"
-                                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                        >
-                                            Print Label
-                                        </button>
-                                    </div>
-                                </div>
+                                <QRCodeLabel
+                                    :id="props.asset.data.id"
+                                    :name="props.asset.data.name"
+                                    :url="assetUrl"
+                                    type="ASSET"
+                                />
                             </dd>
                         </div>
                     </dl>

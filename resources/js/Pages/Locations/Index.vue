@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import Table from '@/Components/Table.vue';
@@ -8,10 +8,46 @@ import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-const props = defineProps({
-    tags: Object,
-    filters: Object
-});
+interface Location {
+    id: string;
+    name: string;
+    address: string;
+    description: string;
+    image?: string;
+}
+
+interface Column {
+    key: keyof Location;
+    label: string;
+}
+
+interface Filters {
+    search?: string;
+    per_page?: string;
+}
+
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+interface PaginationMeta {
+    from: number;
+    to: number;
+    total: number;
+    links: PaginationLink[];
+}
+
+interface LocationsData {
+    data: Location[];
+    meta: PaginationMeta;
+}
+
+const props = defineProps<{
+    tags: LocationsData;
+    filters: Filters;
+}>();
 
 const columns = [
     { key: 'name', label: 'Name' },
@@ -19,12 +55,11 @@ const columns = [
     { key: 'description', label: 'Description' },
 ];
 
-
 const handleAdd = () => {
     router.visit(route('locations.create'));
 };
 
-const handleEdit = (location) => {
+const handleEdit = (location: Location) => {
     router.visit(route('locations.edit', location.id));
 };
 
@@ -71,7 +106,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 description="A list of all locations in your organization."
                 :columns="columns"
                 :items="tags.data"
-                @add="handleAdd"
+                @cta="handleAdd"
                 @edit="handleEdit"
                 @delete="confirmLocationDeletion"
             >

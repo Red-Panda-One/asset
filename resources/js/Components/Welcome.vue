@@ -60,7 +60,7 @@ const { version } = useVersion();
 
                 <div class="pt-6 space-y-6">
                     <div class="p-4 rounded-lg bg-white/50 dark:bg-gray-700/50">
-                        <h3 class="text-lg font-semibold text-orange-600 dark:text-orange-400">Seedling - Alpha MVP</h3>
+                        <h3 class="text-lg font-semibold text-orange-600 dark:text-orange-400">Shoot - Alpha MVP</h3>
                         <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                             The first experimental version. Like a seedling just breaking through the soil, this MVP is fragile and developing. Intended for internal testing and select group feedback.
                         </p>

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import { useForm } from '@inertiajs/vue3';
@@ -6,34 +6,46 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SearchMultiselect from '@/Components/SearchMultiselect.vue';
 import { ref } from 'vue';
 
-const props = defineProps({
-    asset: {
-        type: Object,
-        required: true
-    },
-    categories: Object,
-    locations: Object,
-    tags: Object,
-    selectedTags: Array,
+interface KitData {
+    id: string;
+    name: string;
+    description: string;
+    image?: string;
+}
+
+interface KitProps {
+    kit: {
+        data: KitData;
+    };
+}
+
+const props = defineProps<KitProps>();
+
+// Add default values and error handling
+const kitData = props.kit.data || { name: '', description: '', image: null };
+
+console.log(props.kit);
+
+
+interface KitForm {
+    name: string;
+    description: string;
+    image: File | null;
+}
+
+const form = useForm<KitForm>({
+    name: kitData.name,
+    description: kitData.description,
+    image: null
 });
 
-const form = useForm({
-    name: props.asset.data.name,
-    description: props.asset.data.description,
-    value: props.asset.data.value,
-    category_id: props.asset.data.category_id,
-    location_id: props.asset.data.location_id,
-    tags: props.asset.data.tags?.map(tag => tag.id) || [],
-    image:null,
-});
-
-const imagePreview = ref(props.asset.data.image ? `/storage/${props.asset.data.image}` : null);
+const imagePreview = ref(kitData.image ? `/storage/${kitData.image}` : null);
 const fileName = ref('');
 
-const handleImageUpload = (e) => {
+const handleImageUpload = (e: Event) => {
+    if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
     const file = e.target.files[0];
     if (file) {
         if (file.size > 4 * 1024 * 1024) {
@@ -42,19 +54,20 @@ const handleImageUpload = (e) => {
         }
         form.image = file;
         fileName.value = file.name;
-        console.log(form.image);
-        console.log('IMAGE NAME' + fileName.value);
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            imagePreview.value = e.target.result;
+            if (e.target) {
+                imagePreview.value = e.target.result as string;
+            }
         };
         reader.readAsDataURL(file);
     }
 };
 
-const handleDrop = (e) => {
+const handleDrop = (e: DragEvent) => {
     e.preventDefault();
+    if (!e.dataTransfer) return;
     const file = e.dataTransfer.files[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
         if (file.size > 4 * 1024 * 1024) {
@@ -65,7 +78,9 @@ const handleDrop = (e) => {
         fileName.value = file.name;
         const reader = new FileReader();
         reader.onload = (e) => {
-            imagePreview.value = e.target.result;
+            if (e.target) {
+                imagePreview.value = e.target.result as string;
+            }
         };
         reader.readAsDataURL(file);
     } else {
@@ -74,8 +89,7 @@ const handleDrop = (e) => {
 };
 
 const submit = () => {
-
-    form.post(route('assets.update', props.asset.data.id), {
+    form.post(route('kits.update', props.kit.data.id), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
@@ -84,14 +98,13 @@ const submit = () => {
         },
     });
 };
-
 </script>
 
 <template>
-    <AppLayout title="Edit Asset">
+    <AppLayout title="Edit Kit">
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                Edit Asset
+                Edit Kit
             </h2>
         </template>
         <Container>
@@ -108,23 +121,11 @@ const submit = () => {
                 </div>
 
                 <div>
-                    <InputLabel for="value" value="Value" />
-                    <TextInput
-                        id="value"
-                        v-model="form.value"
-                        type="number"
-                        step="0.01"
-                        class="block mt-1 w-full"
-                    />
-                    <InputError :message="form.errors.value" class="mt-2" />
-                </div>
-
-                <div>
                     <InputLabel for="description" value="Description" />
                     <textarea
                         id="description"
                         v-model="form.description"
-                        class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                        class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                         rows="4"
                     ></textarea>
                     <InputError :message="form.errors.description" class="mt-2" />
@@ -135,7 +136,7 @@ const submit = () => {
                     <div
                         @drop.prevent="handleDrop"
                         @dragover.prevent
-                        class="flex justify-center px-6 pt-5 pb-6 mt-1 rounded-md border-2 border-gray-300 border-dashed"
+                        class="flex justify-center px-6 pt-5 pb-6 mt-1 rounded-md border-2 border-gray-300 border-dashed dark:border-gray-600"
                     >
                         <div class="space-y-1 text-center">
                             <svg
@@ -151,10 +152,10 @@ const submit = () => {
                                     stroke-linejoin="round"
                                 />
                             </svg>
-                            <div class="flex text-sm text-gray-600">
+                            <div class="flex text-sm text-gray-600 dark:text-gray-400">
                                 <label
                                     for="image-upload"
-                                    class="relative font-medium text-orange-600 bg-white rounded-md cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-offset-2 hover:text-orange-500"
+                                    class="relative font-medium text-orange-600 bg-white rounded-md cursor-pointer dark:bg-gray-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-offset-2 hover:text-orange-500"
                                 >
                                     <span>Upload a file</span>
                                     <input
@@ -167,70 +168,21 @@ const submit = () => {
                                 </label>
                                 <p class="pl-1">or drag and drop</p>
                             </div>
-                            <p class="text-xs text-gray-500">PNG, JPG up to 4MB</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG up to 4MB</p>
                         </div>
                     </div>
-                    <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md">
+                    <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md dark:bg-gray-800">
                         <img :src="imagePreview" class="object-cover w-16 h-16 rounded" />
                         <div class="ml-4">
-                            <p class="text-sm text-gray-700">{{ form.image? 'form:' + form.image.name : fileName || 'Current image' }}</p>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">{{ form.image ? form.image.name : fileName || 'Current image' }}</p>
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
                 </div>
 
-                <!-- Tag/Location/Category-->
-                <div>
-        <InputLabel for="category" value="Category" />
-        <CustomMultiselect
-            id="category"
-            v-model="form.category_id"
-            :options="categories.data"
-            label="name"
-            value-prop="id"
-            placeholder="Select a category"
-            class="mt-1"
-        />
-        <InputError :message="form.errors.category_id" class="mt-2" />
-    </div>
-
-    <div>
-        <InputLabel for="location" value="Location" />
-        <CustomMultiselect
-            id="location"
-            v-model="form.location_id"
-            :options="locations.data"
-            label="name"
-            value-prop="id"
-            placeholder="Select a location"
-            class="mt-1"
-        />
-        <InputError :message="form.errors.location_id" class="mt-2" />
-    </div>
-
-    <div>
-        <InputLabel for="tags" value="Tags" />
-        <div class="relative">
-
-            <SearchMultiselect
-                id="tags"
-                v-model="form.tags"
-                :options="tags.data"
-                label="name"
-                value-prop="id"
-                :multiple=true
-                placeholder="Search and select tags"
-                class="mt-1"
-            />
-        </div>
-        <InputError :message="form.errors.tags" class="mt-2" />
-    </div>
-
-
-
                 <div class="flex justify-end">
                     <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                        Update Asset
+                        Update Kit
                     </PrimaryButton>
                 </div>
             </form>

@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Categories extends Model
 {
-
-    use SoftDeletes;
+    use SoftDeletes, HasUlids;
 
     protected $fillable = [
         'name',
