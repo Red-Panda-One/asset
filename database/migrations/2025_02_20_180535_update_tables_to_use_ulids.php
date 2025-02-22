@@ -22,8 +22,8 @@ return new class extends Migration
 
         // Now modify the columns to ULID
         Schema::table('teams', function (Blueprint $table) {
-            $table->string('id', 26)->change();
-            $table->primary('id');
+            $table->dropColumn('id');
+            $table->ulid('id')->primary();
         });
 
         // Modify other tables

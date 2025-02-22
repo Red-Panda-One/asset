@@ -104,7 +104,7 @@ const deleteTag = () => {
                     :columns="columns"
                     :items="tags.data"
                     :selectable="true"
-                    @add="handleAdd"
+                    @cta="handleAdd"
                     @edit="handleEdit"
                     @delete="confirmTagDeletion"
                 />

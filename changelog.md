@@ -29,3 +29,21 @@
 
 ## 0.3.5
 - fixed some ts warnings
+
+## 0.3.6
+- added kit and kit_asset tables
+- added creation for kit
+- added edit for kit
+- added delete for kit
+
+## 0.3.7
+- Changed Table's Add button to CTA
+- Changed Table's Edit button to be shown/hidden base on showEdit default: true
+- Changed Table's Delete button to be shown/hidden base on showEdit default: true
+- Changed Deleted text to be able to be customized
+- Now able to link Assets to Kits and remove them
+
+## 0.3.8
+- Made QR code into its own component
+- Added QR code to Kit
+- Minor ui edit to label 1.1x3.5in

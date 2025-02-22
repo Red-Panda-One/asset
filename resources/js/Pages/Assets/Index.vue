@@ -86,7 +86,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 description="A list of all assets in your organization."
                 :columns="columns"
                 :items="assets.data"
-                @add="handleAdd"
+                @cta="handleAdd"
                 @edit="handleEdit"
                 @delete="confirmAssetDeletion"
             >

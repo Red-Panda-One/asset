@@ -106,7 +106,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 description="A list of all locations in your organization."
                 :columns="columns"
                 :items="tags.data"
-                @add="handleAdd"
+                @cta="handleAdd"
                 @edit="handleEdit"
                 @delete="confirmLocationDeletion"
             >

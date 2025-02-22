@@ -28,7 +28,7 @@ const logout = () => {
 
 const navigation = [
     { name: 'Dashboard', route: 'dashboard', pattern: 'dashboard' },
-    { name: 'Kits', route: 'kit.index', pattern: 'kit.*' },
+    { name: 'Kits', route: 'kits.index', pattern: 'kits.*' },
     { name: 'Assets', route: 'assets.index', pattern: 'assets.index' },
     { name: 'Categories', route: 'categories.index', pattern: 'categories.*' },
     { name: 'Tags', route: 'tags.index', pattern: 'tags.*' },

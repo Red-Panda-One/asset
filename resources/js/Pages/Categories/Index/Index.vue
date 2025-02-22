@@ -53,7 +53,7 @@ const confirmCategoryDeletion = (category: Category): void => {
 
 const deleteCategory = (): void => {
     if (!categoryToDelete.value) return;
-    
+
     router.delete(route('categories.destroy', categoryToDelete.value.id), {
         preserveScroll: true,
         onSuccess: () => {
@@ -80,7 +80,7 @@ const deleteCategory = (): void => {
                 :columns="columns"
                 :items="categories.data"
                 :selectable="true"
-                @add="handleAdd"
+                @cta="handleAdd"
                 @edit="handleEdit"
                 @delete="confirmCategoryDeletion"
             />
