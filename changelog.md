@@ -56,3 +56,10 @@
 - Added a Team logo for the label
 - Ability to change logo on label
 - Handle cases where logo is null
+
+## 0.3.11
+- UI Changes to Kit's Table 
+- Added kit asset count
+
+## 0.3.12
+- Now shows if asset is already in an other kit

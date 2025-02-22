@@ -22,7 +22,14 @@ interface Props {
         category?: { name: string };
         location?: { name: string };
     }>};
-    kitAssets?: any;
+    kitAssets?: { data: Array<{
+        id: string;
+        kit_id: string;
+    }> };
+    unavailableAssets?:  Array<{
+        kit_id: string;
+        asset_id: string;
+    }>;
 }
 
 
@@ -76,8 +83,22 @@ const isAssetInKit = (asset) => {
     return props.kitAssets?.data?.some(kitAsset => kitAsset.id === asset.id) || false;
 };
 
+const isAssetInOtherKit = (asset) => {
+    return props.unavailableAssets?.some(kitAsset =>
+        kitAsset.asset_id === asset.id && kitAsset.kit_id !== props.kit.data.id
+    ) || false;
+};
+
+const getLinkedKitId = (asset) => {
+    const linkedAsset = props.unavailableAssets?.find(kitAsset =>
+        kitAsset.asset_id === asset.id && kitAsset.kit_id !== props.kit.data.id
+    );
+    return linkedAsset?.kit_id;
+};
+
 const kitUrl = computed(() => route('kits.show', props.kit.data.id));
 
+console.log(props.unavailableAssets);
 </script>
 
 <template>
@@ -197,15 +218,28 @@ const kitUrl = computed(() => route('kits.show', props.kit.data.id));
                     <div v-for="asset in filteredAssets" :key="asset.id"
                          class="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
                         <div>
-                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ asset.name }}</p>
+                            <p class="font-medium" :class="{
+                                'text-gray-900 dark:text-gray-100': !isAssetInOtherKit(asset),
+                                'text-red-600 dark:text-red-400': isAssetInOtherKit(asset)
+                            }">{{ asset.name }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">{{ asset.category?.name || 'No category' }} • {{ asset.location?.name || 'No location' }}</p>
                         </div>
-                        <PrimaryButton
-                            @click="isAssetInKit(asset) ? handleRemoveAsset(asset) : handleAddAsset(asset)"
-                            :class="isAssetInKit(asset) ? 'bg-red-600 hover:bg-red-500' : ''"
-                        >
-                            {{ isAssetInKit(asset) ? 'Remove from Kit' : 'Add to Kit' }}
-                        </PrimaryButton>
+                        <div class="flex gap-2">
+                            <PrimaryButton
+                                v-if="isAssetInOtherKit(asset)"
+                                @click="router.visit(route('kits.show', getLinkedKitId(asset)))"
+                                class="bg-orange-500 hover:bg-orange-300"
+                            >
+                                Go to Kit
+                            </PrimaryButton>
+                            <PrimaryButton
+                                v-else
+                                @click="isAssetInKit(asset) ? handleRemoveAsset(asset) : handleAddAsset(asset)"
+                                :class="isAssetInKit(asset) ? 'bg-red-600 hover:bg-red-500' : 'bg-orange-600 hover:bg-orange-500'"
+                            >
+                                {{ isAssetInKit(asset) ? 'Remove from Kit' : 'Add to Kit' }}
+                            </PrimaryButton>
+                        </div>
                     </div>
                     <div v-if="filteredAssets.length === 0" class="py-4 text-center text-gray-500 dark:text-gray-400">
                         No assets found
