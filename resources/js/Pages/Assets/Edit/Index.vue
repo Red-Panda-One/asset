@@ -6,7 +6,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import Multiselect from '@/Components/Multiselect.vue';
+import SearchMultiselect from '@/Components/SearchMultiselect.vue';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -17,6 +17,7 @@ const props = defineProps({
     categories: Object,
     locations: Object,
     tags: Object,
+    selectedTags: Array,
 });
 
 const form = useForm({
@@ -74,19 +75,6 @@ const handleDrop = (e) => {
 
 const submit = () => {
 
-    console.log('Updating asset...');
-    console.log("ID: " + props.asset.data.id);
-    console.log("Name: " + form.name);
-    console.log("Description: " + form.description);
-    console.log("Value: " + form.value);
-    console.log("Category ID: " + form.category_id);
-    console.log("Location ID: " + form.location_id);
-    console.log("Tags: " + form.tags);
-    console.log("Image: " + form.image);
-    console.log("Old Image: " + props.asset.data.image);
-    console.log(form);
-    console.log(form.image);
-
     form.post(route('assets.update', props.asset.data.id), {
         preserveScroll: true,
         onSuccess: () => {
@@ -96,6 +84,7 @@ const submit = () => {
         },
     });
 };
+
 </script>
 
 <template>
@@ -193,7 +182,7 @@ const submit = () => {
                 <!-- Tag/Location/Category-->
                 <div>
         <InputLabel for="category" value="Category" />
-        <Multiselect
+        <CustomMultiselect
             id="category"
             v-model="form.category_id"
             :options="categories.data"
@@ -207,7 +196,7 @@ const submit = () => {
 
     <div>
         <InputLabel for="location" value="Location" />
-        <Multiselect
+        <CustomMultiselect
             id="location"
             v-model="form.location_id"
             :options="locations.data"
@@ -221,16 +210,19 @@ const submit = () => {
 
     <div>
         <InputLabel for="tags" value="Tags" />
-        <Multiselect
-            id="tags"
-            v-model="form.tags"
-            :options="tags.data"
-            label="name"
-            value-prop="id"
-            :multiple="true"
-            placeholder="Select tags"
-            class="mt-1"
-        />
+        <div class="relative">
+
+            <SearchMultiselect
+                id="tags"
+                v-model="form.tags"
+                :options="tags.data"
+                label="name"
+                value-prop="id"
+                :multiple=true
+                placeholder="Search and select tags"
+                class="mt-1"
+            />
+        </div>
         <InputError :message="form.errors.tags" class="mt-2" />
     </div>
 
