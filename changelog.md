@@ -47,3 +47,7 @@
 - Made QR code into its own component
 - Added QR code to Kit
 - Minor ui edit to label 1.1x3.5in
+
+## 0.3.9
+- Created a search multi select
+- improved the Asset tag system
