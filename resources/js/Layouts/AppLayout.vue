@@ -28,12 +28,12 @@ const logout = () => {
 
 const navigation = [
     { name: 'Dashboard', route: 'dashboard', pattern: 'dashboard' },
-    { name: 'Kits', route: 'tags.index', pattern: 'tags.*' },
+    { name: 'Kits', route: 'kits.index', pattern: 'kits.*' },
     { name: 'Assets', route: 'assets.index', pattern: 'assets.index' },
     { name: 'Categories', route: 'categories.index', pattern: 'categories.*' },
     { name: 'Tags', route: 'tags.index', pattern: 'tags.*' },
-    { name: 'Location', route: 'tags.index', pattern: 'tags.*' },
-    { name: 'QR Scanner', route: 'tags.index', pattern: 'tags.*' },
+    { name: 'Locations', route: 'locations.index', pattern: 'locations.*' },
+    { name: 'QR Scanner', route: 'scanner.index', pattern: 'scanner.*' },
 ];
 </script>
 

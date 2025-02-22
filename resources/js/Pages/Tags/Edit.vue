@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
@@ -7,14 +7,28 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
-const props = defineProps({
-    tag: {
-        type: Object,
-        required: true
-    }
-});
+interface Tag {
+    id: string;
+    name: string;
+    description: string;
+}
 
-const form = useForm({
+interface TagData {
+    data: Tag;
+}
+
+interface Props {
+    tag: TagData;
+}
+
+const props = defineProps<Props>();
+
+interface TagForm {
+    name: string;
+    description: string;
+}
+
+const form = useForm<TagForm>({
     name: props.tag.data.name,
     description: props.tag.data.description || ''
 });

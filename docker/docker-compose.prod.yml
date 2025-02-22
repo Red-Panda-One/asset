@@ -1,0 +1,65 @@
+services:
+  db:
+    image: 'postgres:17'
+    container_name: ASSET-DB
+    hostname: asset-db
+    security_opt:
+      - 'no-new-privileges:true'
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - '-q'
+        - '-d'
+        - asset
+        - '-U'
+        - assetuser
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: asset
+      POSTGRES_USER: assetuser
+      POSTGRES_PASSWORD: assetpass
+    restart: 'on-failure:5'
+  asset:
+    image: 'zurielbax/asset-rpo:dev'
+    container_name: asset
+    ports:
+      - "80:80"
+    volumes:
+      - './asset/data:/data:rw'
+      - './asset/conf:/conf:rw'
+    environment:
+      PHP_TZ: America/New_York
+      TIMEZONE: America/New_York
+      PUID: 1000
+      PGID: 1000
+      APP_NAME: Asset RPO
+      APP_KEY: 'base64:PqkYgeKqq3hdHZTvL6ENXdhgyyoCDZYj9wofOcw0l4o='
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_URL: 'https://rpo.com'
+      ASSET_URL: 'https://rpo.com'
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: asset
+      DB_USERNAME: assetuser
+      DB_PASSWORD: assetpass
+      DB_PASSWORD_FILE: rootpass
+      CACHE_STORE: file
+      SESSION_DRIVER: file
+      SESSION_LIFETIME: 240
+      SESSION_ENCRYPT: true
+      SESSION_PATH: /
+      SESSION_DOMAIN: 'rpo.com'
+      SANCTUM_STATEFUL_DOMAINS: 'rpo.com'
+      STARTUP_DELAY: 5
+      TRUSTED_PROXIES: '*'
+    restart: 'on-failure:5'
+    depends_on:
+      db:
+        condition: service_healthy
