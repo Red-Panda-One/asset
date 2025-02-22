@@ -51,3 +51,8 @@
 ## 0.3.9
 - Created a search multi select
 - improved the Asset tag system
+
+## 0.3.10
+- Added a Team logo for the label
+- Ability to change logo on label
+- Handle cases where logo is null
