@@ -25,6 +25,6 @@ class Kit extends Model
 
     public function assets(): BelongsToMany
     {
-        return $this->belongsToMany(Asset::class, 'kit_assets', 'kit_id', 'asset_id');
+        return $this->belongsToMany(Asset::class, 'kit_asset', 'kit_id', 'asset_id');
     }
 }

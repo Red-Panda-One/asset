@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AssetResource;
 use App\Http\Resources\KitResource;
+use App\Models\Asset;
 use App\Models\Kit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -57,7 +60,11 @@ class KitController extends Controller
     public function show(Kit $kit)
     {
         return Inertia::render('Kits/Show', [
-            'kit' => new KitResource($kit)
+            'kit' => new KitResource($kit),
+            'assets' => AssetResource::collection(
+                Asset::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
+            'kitAssets' => AssetResource::collection($kit->assets)
         ]);
     }
 
@@ -88,6 +95,47 @@ class KitController extends Controller
 
         return redirect()->route('kits.index')->with('flash', [
             'banner' => 'Kit updated successfully.',
+            'bannerStyle' => 'success',
+            'bannerTimeout' => 2000,
+        ]);
+    }
+
+    public function addAsset(Request $request, Kit $kit)
+    {
+        $request->validate([
+            'asset_id' => 'required|exists:assets,id'
+        ]);
+
+        $asset = Asset::findOrFail($request->asset_id);
+
+        // Ensure the asset belongs to the same team as the kit
+        if ($asset->team_id !== $request->user()->currentTeam->id) {
+            return redirect()->route('kits.show', $kit)->with('flash', [
+                'banner' => 'Asset does not belong to the same team.',
+                'bannerStyle' =>'danger',
+                'bannerTimeout' => 2000,
+            ]);
+        }
+
+        // Attach the asset to the kit if not already attached
+        if (!$kit->assets()->where('asset_id', $asset->id)->exists()) {
+            $kit->assets()->attach($asset->id);
+        }
+
+        return redirect()->route('kits.show', $kit)->with('flash', [
+            'banner' => 'Asset added to kit successfully.',
+            'bannerStyle' =>'success',
+            'bannerTimeout' => 2000,
+        ]);
+    }
+
+    public function removeAsset(Kit $kit, Asset $asset)
+    {
+        // Find and delete the specific record from the pivot table
+        $kit->assets()->detach($asset->id);
+
+        return redirect()->route('kits.show', $kit)->with('flash', [
+            'banner' => 'Asset removed from kit successfully.',
             'bannerStyle' => 'success',
             'bannerTimeout' => 2000,
         ]);

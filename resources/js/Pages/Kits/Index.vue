@@ -112,7 +112,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 description="A list of all kits in your organization."
                 :columns="columns"
                 :items="kits.data"
-                @add="handleAdd"
+                @cta="handleAdd"
                 @edit="handleEdit"
                 @delete="confirmKitDeletion"
             >

@@ -35,3 +35,10 @@
 - added creation for kit
 - added edit for kit
 - added delete for kit
+
+## 0.3.7
+- Changed Table's Add button to CTA
+- Changed Table's Edit button to be shown/hidden base on showEdit default: true
+- Changed Table's Delete button to be shown/hidden base on showEdit default: true
+- Changed Deleted text to be able to be customized
+- Now able to link Assets to Kits and remove them

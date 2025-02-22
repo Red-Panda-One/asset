@@ -68,7 +68,11 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-])->post('kits/{kit}', [KitController::class, 'update'])->name('kit.update.post');
+])->group(function () {
+    Route::post('kits/{kit}', [KitController::class, 'update'])->name('kit.update.post');
+    Route::post('kits/{kit}/assets', [KitController::class, 'addAsset'])->name('kits.assets.add');
+    Route::delete('kits/{kit}/assets/{asset}', [KitController::class, 'removeAsset'])->name('kits.assets.destroy');
+});
 
 // Routes for Tags
 Route::middleware([

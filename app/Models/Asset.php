@@ -41,4 +41,9 @@ class Asset extends Model
     {
         return $this->belongsToMany(Tag::class, 'asset_tag', 'asset_id', 'tag_id');
     }
+
+    public function kit(): BelongsTo
+    {
+        return $this->belongsTo(Kit::class);
+    }
 }
