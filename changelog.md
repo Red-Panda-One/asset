@@ -42,3 +42,8 @@
 - Changed Table's Delete button to be shown/hidden base on showEdit default: true
 - Changed Deleted text to be able to be customized
 - Now able to link Assets to Kits and remove them
+
+## 0.3.8
+- Made QR code into its own component
+- Added QR code to Kit
+- Minor ui edit to label 1.1x3.5in

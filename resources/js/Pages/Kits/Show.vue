@@ -10,6 +10,9 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { router } from '@inertiajs/vue3';
+import QRCodeLabel from '@/Components/QRCodeLabel.vue';
+
+declare function route(name: 'kits.show', id: string): string;
 
 interface Props {
     kit: KitResponse;
@@ -29,7 +32,6 @@ const showManageModal = ref(false);
 const searchQuery = ref('');
 const availableAssets = ref([]);
 
-console.log(props);
 
 const columns = [
     { key: 'name', label: 'Name' },
@@ -65,8 +67,6 @@ const handleAddAsset = (asset: any) => {
 };
 
 const handleRemoveAsset = (asset: any) => {
-    console.log(asset);
-    console.log(asset.id);
     router.delete(route('kits.assets.destroy', [props.kit.data.id, asset.id]), {
         preserveScroll: true
     });
@@ -75,6 +75,8 @@ const handleRemoveAsset = (asset: any) => {
 const isAssetInKit = (asset) => {
     return props.kitAssets?.data?.some(kitAsset => kitAsset.id === asset.id) || false;
 };
+
+const kitUrl = computed(() => route('kits.show', props.kit.data.id));
 
 </script>
 
@@ -159,6 +161,17 @@ const isAssetInKit = (asset) => {
                                         <div v-else class="flex justify-center items-center w-48 h-48 bg-gray-100 rounded-lg dark:bg-gray-700">
                                             <PhotoIcon class="w-16 h-16 text-gray-400" />
                                         </div>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">QR Code</dt>
+                                    <dd class="mt-1">
+                                        <QRCodeLabel
+                                            :id="props.kit.data.id"
+                                            :name="props.kit.data.name"
+                                            :url="kitUrl"
+                                            type="KIT"
+                                        />
                                     </dd>
                                 </div>
                             </dl>
