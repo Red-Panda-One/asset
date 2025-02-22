@@ -59,6 +59,14 @@ services:
       SANCTUM_STATEFUL_DOMAINS: 'rpo.com'
       STARTUP_DELAY: 5
       TRUSTED_PROXIES: '*'
+      MAIL_MAILER: smtp
+      MAIL_HOST: '${MAIL_HOST:-smtp.mailtrap.io}'
+      MAIL_PORT: '${MAIL_PORT:-2525}'
+      MAIL_USERNAME: '${MAIL_USERNAME}'
+      MAIL_PASSWORD: '${MAIL_PASSWORD}'
+      MAIL_ENCRYPTION: '${MAIL_ENCRYPTION:-tls}'
+      MAIL_FROM_ADDRESS: '${MAIL_FROM_ADDRESS:-noreply@rpo.com}'
+      MAIL_FROM_NAME: '${MAIL_FROM_NAME:-"Asset RPO"}'
     restart: 'on-failure:5'
     depends_on:
       db:

@@ -65,6 +65,15 @@ elif [ "$MAIL_PASSWORD_FILE" != '' ]; then
   value=$(<$MAIL_PASSWORD_FILE)
   replace_or_insert "MAIL_PASSWORD" "$value"
 fi
+if [ "$MAIL_ENCRYPTION" != '' ]; then
+  replace_or_insert "MAIL_ENCRYPTION" "$MAIL_ENCRYPTION"
+fi
+if [ "$MAIL_FROM_ADDRESS" != '' ]; then
+  replace_or_insert "MAIL_FROM_ADDRESS" "$MAIL_FROM_ADDRESS"
+fi
+if [ "$MAIL_FROM_NAME" != '' ]; then
+  replace_or_insert "MAIL_FROM_NAME" "$MAIL_FROM_NAME"
+fi
 if [ "$PHP_TZ" != '' ]; then
   sed -i "s|;*date.timezone =.*|date.timezone = ${PHP_TZ}|i" /etc/php/8.2/cli/php.ini
   sed -i "s|;*date.timezone =.*|date.timezone = ${PHP_TZ}|i" /etc/php/8.2/fpm/php.ini
