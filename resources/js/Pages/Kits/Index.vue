@@ -7,12 +7,14 @@ import { ref, watch } from 'vue';
 import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { PhotoIcon } from '@heroicons/vue/24/solid';
 
 interface Kit {
     id: string;
     name: string;
     description: string;
     image?: string;
+    asset_count: number;
 }
 
 interface Column {
@@ -56,6 +58,7 @@ const props = withDefaults(defineProps<{
 const columns = [
     { key: 'name', label: 'Name' },
     { key: 'description', label: 'Description' },
+    { key: 'asset_count', label: 'Assets' },
 ];
 
 const handleAdd = () => {
@@ -97,6 +100,9 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
         { preserveState: true, preserveScroll: true }
     );
 });
+
+console.log(props.kits);
+
 </script>
 
 <template>
@@ -141,12 +147,19 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 </template>
 
                 <template #cell-name="{ item }">
-                    <div class="flex items-center" @click="router.visit(route('kits.show', item.id))">
+                    <div class="flex items-center cursor-pointer" @click="router.visit(route('kits.show', item.id))">
                         <div v-if="item.image" class="flex-shrink-0 mr-4 w-10 h-10">
                             <img :src="`/storage/${item.image}`" class="object-cover w-10 h-10 rounded-full" />
                         </div>
-                        <div>{{ item.name }}</div>
+                        <div v-else class="flex justify-center items-center mr-4 w-10 h-10 bg-gray-100 rounded-lg dark:bg-gray-700">
+                                <PhotoIcon class="w-6 h-6 text-gray-400" />
+                        </div>
+                        <div class="text-orange-600 hover:text-orange-700">{{ item.name }}</div>
                     </div>
+                </template>
+
+                <template #cell-asset_count="{ item }">
+                    <div class="text-gray-600 dark:text-gray-400">{{ item.asset_count }}</div>
                 </template>
 
                 <template #pagination>

@@ -120,6 +120,7 @@ class KitController extends Controller
         // Attach the asset to the kit if not already attached
         if (!$kit->assets()->where('asset_id', $asset->id)->exists()) {
             $kit->assets()->attach($asset->id);
+            $kit->increment('asset_count');
         }
 
         return redirect()->route('kits.show', $kit)->with('flash', [
@@ -132,7 +133,10 @@ class KitController extends Controller
     public function removeAsset(Kit $kit, Asset $asset)
     {
         // Find and delete the specific record from the pivot table
-        $kit->assets()->detach($asset->id);
+        if ($kit->assets()->where('asset_id', $asset->id)->exists()) {
+            $kit->assets()->detach($asset->id);
+            $kit->decrement('asset_count');
+        }
 
         return redirect()->route('kits.show', $kit)->with('flash', [
             'banner' => 'Asset removed from kit successfully.',

@@ -114,6 +114,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                     </div>
                 </template>
 
+
                 <template #cell-name="{ item }">
                     <div class="flex items-center cursor-pointer" @click="router.visit(route('assets.show', item.id))">
                         <div class="flex-shrink-0 mr-4 w-10 h-10">
