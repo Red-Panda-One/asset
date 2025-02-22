@@ -7,6 +7,7 @@ use App\Http\Resources\KitResource;
 use App\Models\Asset;
 use App\Models\Kit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -64,7 +65,12 @@ class KitController extends Controller
             'assets' => AssetResource::collection(
                 Asset::where('team_id', request()->user()->currentTeam->id)->get()
             ),
-            'kitAssets' => AssetResource::collection($kit->assets)
+            'kitAssets' => AssetResource::collection($kit->assets),
+            'unavailableAssets' => DB::table('kit_asset')
+                ->join('kits', 'kit_asset.kit_id', '=', 'kits.id')
+                ->where('kits.team_id', request()->user()->currentTeam->id)
+                ->select('kit_asset.kit_id', 'kit_asset.asset_id')
+                ->get(),
         ]);
     }
 
