@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\KitController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TeamLogoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -97,3 +98,9 @@ Route::middleware([
     return Inertia::render('Scanner/Index');
 })->name('scanner.index');
 
+// Route for Team Logo Updates
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->post('/team-logos/{team}', [TeamLogoController::class, 'update'])->name('team-logos.update');
