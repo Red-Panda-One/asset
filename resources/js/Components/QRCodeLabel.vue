@@ -2,7 +2,8 @@
 import { useQRCode } from '@vueuse/integrations/useQRCode';
 import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import thermalIcon from '@/../svg/thermal-lable-icon.svg';
+import defaultColor from '@/../svg/label-default-colored.svg';
+import defaultBW from '@/../svg/label-default-bw.svg';
 
 interface Props {
     id: string;
@@ -33,7 +34,7 @@ const printLabel = (): void => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     const team = (page.props.auth as any).user.current_team;
-    const logoSrc = colorMode.value === 'color' ? team.colored_logo : team.bw_logo;
+    const logoSrc = colorMode.value === 'color' ? (team.colored_logo || defaultColor) : (team.bw_logo || defaultBW);
     printWindow.document.write(`
         <html>
             <head>
@@ -122,7 +123,7 @@ const printLabel = (): void => {
                 <div class="label-container">
                     <div class="qr-section">
                         <img src="${qrcode.value}" alt="QR Code">
-                        <img src="${logoSrc || thermalIcon}" alt="Thermal Label Icon" class="thermal-icon">
+                        <img src="${logoSrc || defaultBW}" alt="Thermal Label Icon" class="thermal-icon">
                     </div>
                     <div class="info-section">
                         <p class="property-text">PROPERTY OF</p>
@@ -145,7 +146,12 @@ const printLabel = (): void => {
 
 <template>
     <div class="flex flex-col items-center space-y-4">
-        <img :src="qrcode" :alt="`QR Code for ${name}`" class="w-48 h-48">
+        <div class="relative">
+            <img :src="qrcode" :alt="`QR Code for ${name}`" class="w-48 h-48">
+            <img :src="colorMode === 'color' ? ((page.props.auth as any).user.current_team.colored_logo || defaultColor) : ((page.props.auth as any).user.current_team.bw_logo || defaultBW)"
+                alt="Team Logo"
+                class="absolute top-1/2 left-1/2 z-10 w-14 h-14 transform -translate-x-1/2 -translate-y-1/2">
+        </div>
         <div class="flex flex-col gap-4 items-center">
             <div class="flex gap-2 items-center">
                 <label class="inline-flex relative items-center cursor-pointer">
