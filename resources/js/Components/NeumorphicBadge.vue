@@ -9,7 +9,7 @@ const props = defineProps({
     },
     text: {
         type: String,
-        required: true
+        required: false
     }
 });
 
@@ -30,12 +30,15 @@ const textColor = computed(() => {
 
 <template>
     <div
-        class="inline-flex items-baseline px-2.5 py-0.5 text-sm font-medium rounded-full md:mt-2 lg:mt-0"
+        class="inline-flex items-center px-2.5 py-0.5 text-sm font-medium rounded-full md:mt-2 lg:mt-0"
         :style="{
             backgroundColor: color,
             color: textColor
         }"
     >
-        {{ text }}
+        <span class="flex items-center">
+            {{ text }}
+            <slot/>
+        </span>
     </div>
 </template>

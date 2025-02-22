@@ -122,6 +122,7 @@ class AssetController extends Controller
             'tags' => TagResource::collection(
                 Tag::where('team_id', request()->user()->currentTeam->id)->get()
             ),
+            'selectedTags' => TagResource::collection($asset->tags),
         ]);
     }
 
