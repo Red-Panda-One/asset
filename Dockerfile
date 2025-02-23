@@ -31,26 +31,54 @@ WORKDIR /var/www/html
 # Ensure version.md is copied first
 COPY version.md ./
 COPY . .
+COPY --from=js-builder /var/www/html/public/build/ ./public/build/
 
-# Configure PHP-FPM and Nginx
-RUN mkdir -p /run/php && \
-    mkdir -p /var/log/nginx /var/lib/nginx /var/run/nginx && \
+# Configure NGINX with custom configuration
+RUN echo ' \
+server { \
+    listen 80; \
+    server_name _; \
+    root /var/www/html/public; \
+    index index.php; \
+    charset utf-8; \
+    location / { \
+        try_files $uri $uri/ /index.php?$query_string; \
+        add_header Access-Control-Allow-Origin *; \
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"; \
+        add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"; \
+    } \
+    location ~ \.php$ { \
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock; \
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name; \
+        include fastcgi_params; \
+    } \
+} \
+' > /etc/nginx/conf.d/default.conf
+
+# Configure PHP and directories
+RUN mkdir -p /run/php /var/log/nginx /var/lib/nginx /var/run/nginx && \
     chown -R www-data:www-data /var/log/nginx /var/lib/nginx /var/run/nginx /run/php
 
-# Install dependencies
+# Install dependencies with retry
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Set permissions
 RUN chmod -R 775 ./storage/ ./bootstrap/cache/ && \
     chown -R www-data:www-data ./storage/ ./bootstrap/cache/
 
-# Copy assets from builder
-COPY --from=js-builder /var/www/html/public/build/ ./public/build/
-
-
+# Create startup script
+RUN echo '#!/bin/bash \n\
+/usr/local/bin/inject.sh \n\
+php artisan migrate --force \n\
+php artisan config:cache \n\
+php artisan route:cache \n\
+php artisan view:cache \n\
+php artisan storage:link \n\
+supervisord -c /etc/supervisor/supervisord.conf \n\
+' > /usr/local/bin/startup.sh && \
+chmod +x /usr/local/bin/startup.sh
 
 ENV DOCUMENT_ROOT=/var/www/html/public
 
-
-# Run the inject.sh script before starting the application
-CMD ["sh", "-c", "inject.sh && php-fpm"]
+# Use the startup script
+CMD ["/usr/local/bin/startup.sh"]
