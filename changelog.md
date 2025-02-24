@@ -63,3 +63,4 @@
 
 ## 0.3.12
 - Now shows if asset is already in an other kit
+- Added a character limit to the asset name and team name for the 29x90mm label
