@@ -66,6 +66,16 @@ const handleDrop = (e) => {
 };
 
 const submit = () => {
+    console.log('Creating Asset...');
+    console.log("Name: " + form.name);
+    console.log("Description: " + form.description);
+    console.log("Value: " + form.value);
+    console.log("Category ID: " + form.category_id);
+    console.log("Location ID: " + form.location_id);
+    console.log("Tags: " + form.tags);
+    console.log("Image: " + form.image);
+    console.log(form);
+    console.log(form.image);
     form.post(route('assets.store'), {
         preserveState: true,
         onSuccess: () => {
@@ -164,7 +174,7 @@ const submit = () => {
                     <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md">
                         <img :src="imagePreview" class="object-cover w-16 h-16 rounded" />
                         <div class="ml-4">
-                            <p class="text-sm text-gray-700">{{ fileName }}</p>
+                            <p class="text-sm text-gray-700">{{form.image.name}}</p>
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />

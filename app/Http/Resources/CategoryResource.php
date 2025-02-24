@@ -19,6 +19,7 @@ class CategoryResource extends JsonResource
             'name' => $this->name,
             'color' => $this->color,
             'description' => $this->description,
+            'assets' => new AssetResource($this->whenLoaded('assets')),
         ];
     }
 }

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue'
 import Table from '@/Components/Table.vue'
@@ -10,15 +10,23 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { ref } from 'vue';
 
-const props = defineProps({
+interface Category {
+    id: string;
+    name: string;
+    description: string;
+    color: string;
+}
+
+interface Props {
     categories: {
-        type: Object,
-        required: true,
-    }
-});
+        data: Category[];
+    };
+}
+
+const props = defineProps<Props>();
 
 const columns = [
-    { key: 'name', label: 'Name', render: (item) => (
+    { key: 'name', label: 'Name', render: (item: Category) => (
         h(NeumorphicBadge, {
             color: item.color || '#646a75',
             text: item.name
@@ -27,24 +35,26 @@ const columns = [
     { key: 'description', label: 'Description' },
 ];
 
-const confirmingCategoryDeletion = ref(false);
-const categoryToDelete = ref(null);
+const confirmingCategoryDeletion = ref<boolean>(false);
+const categoryToDelete = ref<Category | null>(null);
 
-const handleAdd = () => {
+const handleAdd = (): void => {
     router.get(route('categories.create'));
 }
 
-const handleEdit = (category) => {
+const handleEdit = (category: Category): void => {
     router.get(route('categories.edit', category.id));
 };
 
-const confirmCategoryDeletion = (category) => {
+const confirmCategoryDeletion = (category: Category): void => {
     categoryToDelete.value = category;
     confirmingCategoryDeletion.value = true;
 };
 
-const deleteCategory = () => {
-    router.delete(route('categories.destroy', categoryToDelete.value), {
+const deleteCategory = (): void => {
+    if (!categoryToDelete.value) return;
+
+    router.delete(route('categories.destroy', categoryToDelete.value.id), {
         preserveScroll: true,
         onSuccess: () => {
             confirmingCategoryDeletion.value = false;
@@ -70,7 +80,7 @@ const deleteCategory = () => {
                 :columns="columns"
                 :items="categories.data"
                 :selectable="true"
-                @add="handleAdd"
+                @cta="handleAdd"
                 @edit="handleEdit"
                 @delete="confirmCategoryDeletion"
             />

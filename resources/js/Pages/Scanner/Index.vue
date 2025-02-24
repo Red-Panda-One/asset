@@ -1,21 +1,25 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import QrScanner from 'qr-scanner';
 
-const videoElement = ref(null);
-const qrScanner = ref(null);
-const scannerActive = ref(false);
-const error = ref('');
+interface QrResult {
+    data: string;
+}
 
-const startScanner = async () => {
+const videoElement = ref<HTMLVideoElement | null>(null);
+const qrScanner = ref<QrScanner | null>(null);
+const scannerActive = ref<boolean>(false);
+const error = ref<string>('');
+
+const startScanner = async (): Promise<void> => {
     try {
         console.log('Initializing QR scanner...');
         error.value = '';
         qrScanner.value = new QrScanner(
-            videoElement.value,
+            videoElement.value as HTMLVideoElement,
             result => {
                 console.log('QR code detected:', result.data);
                 if (result.data) {
@@ -37,7 +41,7 @@ const startScanner = async () => {
 
                         console.log('Extracted asset ID:', assetId);
 
-                        if (assetId && /^\d+$/.test(assetId)) {
+                        if (assetId) {
                             console.log('Navigating to asset:', route('assets.show', assetId));
                             router.visit(route('assets.show', assetId));
                         } else {
@@ -62,7 +66,7 @@ const startScanner = async () => {
     }
 };
 
-const stopScanner = () => {
+const stopScanner = (): void => {
     if (qrScanner.value) {
         qrScanner.value.stop();
         qrScanner.value.destroy();

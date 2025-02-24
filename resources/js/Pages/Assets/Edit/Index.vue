@@ -6,7 +6,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import Multiselect from '@/Components/Multiselect.vue';
+import SearchMultiselect from '@/Components/SearchMultiselect.vue';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -17,6 +17,7 @@ const props = defineProps({
     categories: Object,
     locations: Object,
     tags: Object,
+    selectedTags: Array,
 });
 
 const form = useForm({
@@ -26,7 +27,7 @@ const form = useForm({
     category_id: props.asset.data.category_id,
     location_id: props.asset.data.location_id,
     tags: props.asset.data.tags?.map(tag => tag.id) || [],
-    image: null
+    image:null,
 });
 
 const imagePreview = ref(props.asset.data.image ? `/storage/${props.asset.data.image}` : null);
@@ -41,6 +42,9 @@ const handleImageUpload = (e) => {
         }
         form.image = file;
         fileName.value = file.name;
+        console.log(form.image);
+        console.log('IMAGE NAME' + fileName.value);
+
         const reader = new FileReader();
         reader.onload = (e) => {
             imagePreview.value = e.target.result;
@@ -70,14 +74,17 @@ const handleDrop = (e) => {
 };
 
 const submit = () => {
-    form.patch(route('assets.update', props.asset.data.id), {
+
+    form.post(route('assets.update', props.asset.data.id), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
             imagePreview.value = null;
+            window.scrollTo(0, 0);
         },
     });
 };
+
 </script>
 
 <template>
@@ -96,7 +103,6 @@ const submit = () => {
                         v-model="form.name"
                         type="text"
                         class="block mt-1 w-full"
-                        required
                     />
                     <InputError :message="form.errors.name" class="mt-2" />
                 </div>
@@ -167,7 +173,7 @@ const submit = () => {
                     <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md">
                         <img :src="imagePreview" class="object-cover w-16 h-16 rounded" />
                         <div class="ml-4">
-                            <p class="text-sm text-gray-700">{{ fileName || 'Current image' }}</p>
+                            <p class="text-sm text-gray-700">{{ form.image? 'form:' + form.image.name : fileName || 'Current image' }}</p>
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
@@ -176,7 +182,7 @@ const submit = () => {
                 <!-- Tag/Location/Category-->
                 <div>
         <InputLabel for="category" value="Category" />
-        <Multiselect
+        <CustomMultiselect
             id="category"
             v-model="form.category_id"
             :options="categories.data"
@@ -190,7 +196,7 @@ const submit = () => {
 
     <div>
         <InputLabel for="location" value="Location" />
-        <Multiselect
+        <CustomMultiselect
             id="location"
             v-model="form.location_id"
             :options="locations.data"
@@ -204,16 +210,19 @@ const submit = () => {
 
     <div>
         <InputLabel for="tags" value="Tags" />
-        <Multiselect
-            id="tags"
-            v-model="form.tags"
-            :options="tags.data"
-            label="name"
-            value-prop="id"
-            :multiple="true"
-            placeholder="Select tags"
-            class="mt-1"
-        />
+        <div class="relative">
+
+            <SearchMultiselect
+                id="tags"
+                v-model="form.tags"
+                :options="tags.data"
+                label="name"
+                value-prop="id"
+                :multiple=true
+                placeholder="Search and select tags"
+                class="mt-1"
+            />
+        </div>
         <InputError :message="form.errors.tags" class="mt-2" />
     </div>
 

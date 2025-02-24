@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import { useForm } from '@inertiajs/vue3';
@@ -8,7 +8,14 @@ import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref } from 'vue';
 
-const form = useForm({
+interface LocationForm {
+    name: string;
+    description: string;
+    address: string;
+    image: File | null;
+}
+
+const form = useForm<LocationForm>({
     name: '',
     description: '',
     address: '',
@@ -18,7 +25,8 @@ const form = useForm({
 const imagePreview = ref(null);
 const fileName = ref(''); // Add this line to store filename
 
-const handleImageUpload = (e) => {
+const handleImageUpload = (e: Event) => {
+    if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
     const file = e.target.files[0];
     if (file) {
         if (file.size > 4 * 1024 * 1024) {
@@ -35,7 +43,7 @@ const handleImageUpload = (e) => {
     }
 };
 
-const handleDrop = (e) => {
+const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {

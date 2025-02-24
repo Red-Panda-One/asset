@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import Table from '@/Components/Table.vue';
@@ -9,11 +9,20 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 import { PhotoIcon } from '@heroicons/vue/24/solid';
+import type { Asset, AssetsResponse, AssetFilters } from '@/types/asset';
 
-const props = defineProps({
-    assets: Object,
-    filters: Object
-});
+declare function route(name: 'assets.create'): string;
+declare function route(name: 'assets.edit', id: string): string;
+declare function route(name: 'assets.destroy', id: string): string;
+declare function route(name: 'assets.index'): string;
+declare function route(name: 'assets.show', id: string): string;
+
+interface Props {
+    assets: AssetsResponse;
+    filters: AssetFilters;
+}
+
+const props = defineProps<Props>();
 
 const columns = [
     { key: 'name', label: 'Name' },
@@ -24,24 +33,26 @@ const columns = [
     { key: 'description', label: 'Description' },
 ];
 
-const handleAdd = () => {
+const handleAdd = (): void => {
     router.visit(route('assets.create'));
 };
 
-const handleEdit = (asset) => {
+const handleEdit = (asset: Asset): void => {
     router.visit(route('assets.edit', asset.id));
 };
 
 const confirmingAssetDeletion = ref(false);
-const assetToDelete = ref(null);
+const assetToDelete = ref<Asset | null>(null);
 
-const confirmAssetDeletion = (asset) => {
+const confirmAssetDeletion = (asset: Asset): void => {
     assetToDelete.value = asset;
     confirmingAssetDeletion.value = true;
 };
 
-const deleteAsset = () => {
-    router.delete(route('assets.destroy', assetToDelete.value), {
+const deleteAsset = (): void => {
+    if (!assetToDelete.value) return;
+
+    router.delete(route('assets.destroy', assetToDelete.value.id), {
         preserveScroll: true,
         onSuccess: () => {
             confirmingAssetDeletion.value = false;
@@ -50,8 +61,8 @@ const deleteAsset = () => {
     });
 };
 
-const search = ref(props.filters.search || '');
-const perPage = ref(props.filters.per_page || '20');
+const search = ref<string>(props.filters.search || '');
+const perPage = ref<string>(props.filters.per_page || '20');
 
 watch([search, perPage], ([newSearch, newPerPage]) => {
     router.get(
@@ -75,7 +86,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 description="A list of all assets in your organization."
                 :columns="columns"
                 :items="assets.data"
-                @add="handleAdd"
+                @cta="handleAdd"
                 @edit="handleEdit"
                 @delete="confirmAssetDeletion"
             >
@@ -102,6 +113,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                         </div>
                     </div>
                 </template>
+
 
                 <template #cell-name="{ item }">
                     <div class="flex items-center cursor-pointer" @click="router.visit(route('assets.show', item.id))">

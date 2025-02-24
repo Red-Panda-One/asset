@@ -24,13 +24,31 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    showEdit: {
+        type: Boolean,
+        default: true
+    },
+    showDelete: {
+        type: Boolean,
+        default: true
+    },
+    deleteText: {
+        type: String,
+        required: false,
+        default: 'Delete'
+    },
     showCheckboxes: {
         type: Boolean,
         default: true
+    },
+    ctaText: {
+        type: String,
+        required: false,
+        default: 'Add'
     }
 });
 
-const emit = defineEmits(['add', 'edit', 'delete', 'bulk-edit', 'bulk-delete']);
+const emit = defineEmits(['cta', 'edit', 'delete', 'bulk-edit', 'bulk-delete']);
 
 const selectedItems = ref([]);
 const sortColumn = ref('');
@@ -95,10 +113,10 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                 <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <button
                         type="button"
-                        @click="$emit('add')"
+                        @click="$emit('cta')"
                         class="block px-3 py-2 text-sm font-semibold text-center text-white bg-orange-600 rounded-md shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                     >
-                        Add
+                        {{ ctaText }}
                     </button>
                 </div>
             </div>
@@ -184,16 +202,18 @@ const isSelected = (item) => selectedItems.value.includes(item.id);
                                         </td>
                                         <td class="relative py-4 pr-4 pl-3 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
                                             <button
+                                                v-if="showEdit"
                                                 @click="$emit('edit', item)"
                                                 class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
                                             >
                                                 Edit
                                             </button>
                                             <button
+                                                v-if="showDelete"
                                                 @click="$emit('delete', item)"
                                                 class="pl-4 text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
                                             >
-                                                Delete
+                                                {{ deleteText }}
                                             </button>
                                         </td>
                                     </tr>

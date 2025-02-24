@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Asset extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUlids;
 
     protected $fillable = [
         'name',
@@ -39,5 +40,10 @@ class Asset extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'asset_tag', 'asset_id', 'tag_id');
+    }
+
+    public function kit(): BelongsTo
+    {
+        return $this->belongsTo(Kit::class);
     }
 }

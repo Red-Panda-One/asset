@@ -13,6 +13,8 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Team;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class AssetController extends Controller
 {
@@ -54,6 +56,9 @@ class AssetController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info("=========================================================");
+        Log::info('2: Debugging update method');
+        Log::info("Form data:", ['request_data' => $request->all()]);
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -70,6 +75,9 @@ class AssetController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('assets', 'public');
             $data['image'] = $path;
+            Log::info('Image uploaded successfully', ['path' => $path]);
+        } else {
+            Log::info('No image file provided');
         }
 
         $asset = Asset::create([
@@ -105,7 +113,16 @@ class AssetController extends Controller
     {
         return Inertia::render('Assets/Edit/Index', [
             'asset' => new AssetResource($asset->load(['category', 'location', 'tags'])),
-
+            'categories' => CategoryResource::collection(
+                Categories::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
+            'locations' => LocationResource::collection(
+                Location::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
+            'tags' => TagResource::collection(
+                Tag::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
+            'selectedTags' => TagResource::collection($asset->tags),
         ]);
     }
 
@@ -114,6 +131,11 @@ class AssetController extends Controller
      */
     public function update(Request $request, Asset $asset)
     {
+        Log::info("=========================================================");
+        Log::info('2: Debugging update method');
+        Log::info('Starting asset update process', ['asset_id' => $asset->id]);
+        Log::info('Request all data:',  $request->all());
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -125,18 +147,53 @@ class AssetController extends Controller
             'tags.*' => 'exists:tags,id',
         ]);
 
+        Log::info('Validation passed for asset update');
+
         $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id']);
 
+        Log::info('Extracted data for asset update', ['data' => $data]);
+
+
+        // Handle image upload
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('assets', 'public');
-            $data['image'] = $path;
+            $file = $request->file('image');
+            Log::info('New image file detected', [
+                'original_name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'error' => $file->getError(),
+                'is_valid' => $file->isValid()
+            ]);
+
+            if ($file->isValid()) {
+                // Delete old image if exists
+                if ($asset->image) {
+                    Log::info('Deleting old image', ['old_image_path' => $asset->image]);
+                    Storage::disk('public')->delete($asset->image);
+                }
+
+                $path = $file->store('assets', 'public');
+                Log::info('New image uploaded successfully', ['new_image_path' => $path]);
+                $data['image'] = $path;
+            } else {
+                Log::error('Image file upload failed', ['error' => $file->getError()]);
+                return back()->withErrors(['image' => 'Failed to upload image file.']);
+            }
+        } else {
+            Log::info('No new image file provided', ['request_files' => $request->allFiles()]);
         }
 
+        // Update asset
         $asset->update($data);
+        Log::info('Asset basic information updated', ['updated_fields' => array_keys($data)]);
 
+        // Update tags
         if ($request->has('tags')) {
             $asset->tags()->sync($request->tags);
+            Log::info('Asset tags updated', ['new_tags' => $request->tags]);
         }
+
+        Log::info('Asset update completed successfully', ['asset_id' => $asset->id]);
 
         return redirect()->route('assets.index')->with('flash', [
             'banner' => 'Asset updated successfully.',
