@@ -16,7 +16,8 @@ class AssetResource extends JsonResource
             'value' => $this->value,
             'image' => $this->image,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,  // Add this line
+            'updated_at' => $this->updated_at,
+            'status' => $this->status,
             'category' => new CategoryResource($this->whenLoaded('category')),
             'location' => new LocationResource($this->whenLoaded('location')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),

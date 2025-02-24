@@ -37,9 +37,10 @@ class KitController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'status' => 'required|string|max:255',
         ]);
 
-        $kitData = $request->only(['name', 'description']);
+        $kitData = $request->only(['name', 'description', 'status']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('kits', 'public');
@@ -86,11 +87,11 @@ class KitController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:4096']
+            'image' => ['nullable', 'image', 'max:4096'],
+            'status' => ['required', 'string', 'max:255'],
         ]);
 
-
-        $kitData = $request->only(['name', 'description']);
+        $kitData = $request->only(['name', 'description', 'status']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('kits', 'public');

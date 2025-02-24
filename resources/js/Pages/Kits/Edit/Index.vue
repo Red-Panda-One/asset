@@ -7,12 +7,15 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref } from 'vue';
+import StatusSelector from '@/Components/StatusSelector.vue';
+import type { Status } from '@/types/status';
 
 interface KitData {
     id: string;
     name: string;
     description: string;
     image?: string;
+    status: Status;
 }
 
 interface KitProps {
@@ -33,12 +36,14 @@ interface KitForm {
     name: string;
     description: string;
     image: File | null;
+    status: Status;
 }
 
 const form = useForm<KitForm>({
     name: kitData.name,
     description: kitData.description,
-    image: null
+    image: null,
+    status: kitData.status || 'Available'
 });
 
 const imagePreview = ref(kitData.image ? `/storage/${kitData.image}` : null);
@@ -109,6 +114,13 @@ const submit = () => {
         </template>
         <Container>
             <form @submit.prevent="submit" class="space-y-6">
+                <div>
+                    <StatusSelector
+                        v-model="form.status"
+                        :error="form.errors.status"
+                    />
+                </div>
+
                 <div>
                     <InputLabel for="name" value="Name" />
                     <TextInput

@@ -52,7 +52,7 @@ const navigation = [
                             <!-- Logo -->
                             <div class="flex items-center shrink-0">
                                 <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block w-auto h-9" />
+                                    <ApplicationMark class="block w-auto h-4" />
                                 </Link>
                             </div>
 

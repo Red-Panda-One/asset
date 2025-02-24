@@ -20,6 +20,7 @@ class Asset extends Model
         'team_id',
         'category_id',
         'location_id',
+        'status'
     ];
 
     public function team(): BelongsTo

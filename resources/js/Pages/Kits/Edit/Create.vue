@@ -7,17 +7,21 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref } from 'vue';
+import StatusSelector from '@/Components/StatusSelector.vue';
+import type { Status } from '@/types/status';
 
 interface KitForm {
     name: string;
     description: string;
     image: File | null;
+    status: Status;
 }
 
 const form = useForm<KitForm>({
     name: '',
     description: '',
-    image: null
+    image: null,
+    status: 'Available'
 });
 
 const imagePreview = ref(null);
@@ -145,6 +149,7 @@ const submit = () => {
                             <p class="text-xs text-gray-500">PNG, JPG up to 4MB</p>
                         </div>
                     </div>
+
                     <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md">
                         <img :src="imagePreview" class="object-cover w-16 h-16 rounded" />
                         <div class="ml-4">
@@ -152,6 +157,14 @@ const submit = () => {
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
+
+                </div>
+
+                <div>
+                        <StatusSelector
+                            v-model="form.status"
+                            :error="form.errors.status"
+                        />
                 </div>
 
                 <div class="flex justify-end">

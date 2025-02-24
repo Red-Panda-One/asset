@@ -16,7 +16,8 @@ class Kit extends Model
         'description',
         'image',
         'team_id',
-        'asset_count'
+        'asset_count',
+        'status'
     ];
 
     public function team(): BelongsTo
