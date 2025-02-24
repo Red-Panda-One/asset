@@ -19,6 +19,7 @@ class KitResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'image' => $this->image,
+            'status' => $this->status,
             'created_at' => $this->created_at,
             'asset_count' => $this->asset_count,
         ];

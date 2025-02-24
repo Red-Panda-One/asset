@@ -25,7 +25,7 @@ class AssetController extends Controller
     {
         return Inertia::render('Assets/Index', [
             'assets' => AssetResource::collection(
-                Asset::with(['category', 'location', 'tags'])  // Make sure 'tags' is included here
+                Asset::with(['category', 'location', 'tags'])
                     ->where('team_id', $request->user()->currentTeam->id)
                     ->paginate(20)
             ),
@@ -56,9 +56,6 @@ class AssetController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info("=========================================================");
-        Log::info('2: Debugging update method');
-        Log::info("Form data:", ['request_data' => $request->all()]);
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -68,9 +65,10 @@ class AssetController extends Controller
             'location_id' => 'nullable|exists:locations,id',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
+            'status' => 'required|string|max:255',
         ]);
 
-        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id']);
+        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('assets', 'public');
@@ -131,10 +129,6 @@ class AssetController extends Controller
      */
     public function update(Request $request, Asset $asset)
     {
-        Log::info("=========================================================");
-        Log::info('2: Debugging update method');
-        Log::info('Starting asset update process', ['asset_id' => $asset->id]);
-        Log::info('Request all data:',  $request->all());
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -145,11 +139,10 @@ class AssetController extends Controller
             'location_id' => 'nullable|exists:locations,id',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
+            'status' => 'required|string|max:255',
         ]);
 
-        Log::info('Validation passed for asset update');
-
-        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id']);
+        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status']);
 
         Log::info('Extracted data for asset update', ['data' => $data]);
 
