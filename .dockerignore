@@ -16,3 +16,4 @@ tests
 .vscode
 
 !version.md
+public/hot
