@@ -3,11 +3,14 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
 import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 import { PhotoIcon } from '@heroicons/vue/24/solid';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { computed } from 'vue';
 import QRCodeLabel from '@/Components/QRCodeLabel.vue';
 import type { AssetResponse } from '@/types/asset';
+import { router } from '@inertiajs/vue3';
 
 declare function route(name: 'assets.show', id: string): string;
+declare function route(name: 'assets.edit', id: string): string;
 
 interface Props {
     asset: AssetResponse;
@@ -34,9 +37,18 @@ const assetUrl = computed(() => route('assets.show', props.asset.data.id));
                         <PhotoIcon class="w-8 h-8 text-gray-400" />
                     </div>
                 </div>
-                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    {{ props.asset.data.name }}
-                </h2>
+                <div class="flex gap-4 justify-between items-center w-full">
+                    <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                        {{ props.asset.data.name }}
+                    </h2>
+                    <PrimaryButton
+                        @click="router.visit(route('assets.edit', props.asset.data.id))"
+                        class=""
+                    >
+                        Edit Asset
+                    </PrimaryButton>
+
+                </div>
             </div>
         </template>
 
