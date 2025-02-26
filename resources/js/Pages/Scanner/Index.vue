@@ -25,28 +25,32 @@ const startScanner = async (): Promise<void> => {
                 if (result.data) {
                     try {
                         console.log('Parsing QR code data...');
-                        // Try to extract asset ID from the raw data
-                        let assetId;
+                        let id;
+                        let type;
 
                         try {
                             // First try parsing as URL
                             const url = new URL(result.data);
                             const pathSegments = url.pathname.split('/');
-                            assetId = pathSegments[pathSegments.length - 1];
+                            id = pathSegments[pathSegments.length - 1];
+                            // Determine if it's a kit or asset URL
+                            type = pathSegments.includes('kits') ? 'kits' : 'assets';
                         } catch (urlError) {
                             // If URL parsing fails, try extracting ID directly
                             const segments = result.data.split('/');
-                            assetId = segments[segments.length - 1];
+                            id = segments[segments.length - 1];
+                            type = segments.includes('kits') ? 'kits' : 'assets';
                         }
 
-                        console.log('Extracted asset ID:', assetId);
+                        console.log('Extracted ID:', id, 'Type:', type);
 
-                        if (assetId) {
-                            console.log('Navigating to asset:', route('assets.show', assetId));
-                            router.visit(route('assets.show', assetId));
+                        if (id) {
+                            const routeName = type === 'kits' ? 'kits.show' : 'assets.show';
+                            console.log('Navigating to:', route(routeName, id));
+                            router.visit(route(routeName, id));
                         } else {
-                            console.error('Invalid QR code: No valid asset ID found');
-                            error.value = 'Invalid QR code format: No valid asset ID found';
+                            console.error('Invalid QR code: No valid ID found');
+                            error.value = 'Invalid QR code format: No valid ID found';
                         }
                     } catch (e) {
                         console.error('Error processing QR code:', e);
