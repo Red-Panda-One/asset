@@ -116,9 +116,17 @@ console.log(props.unavailableAssets);
                         <PhotoIcon class="w-8 h-8 text-gray-400" />
                     </div>
                 </div>
-                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    {{ props.kit.data.name }}
-                </h2>
+                <div class="flex gap-4 justify-between items-center w-full">
+                    <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                        {{ props.kit.data.name }}
+                    </h2>
+                    <PrimaryButton
+                        @click="router.visit(route('kits.edit', props.kit.data.id))"
+                        class=""
+                    >
+                        Edit Kit
+                    </PrimaryButton>
+                </div>
             </div>
         </template>
 

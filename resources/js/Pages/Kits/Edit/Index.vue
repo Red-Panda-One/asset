@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, Link } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -108,75 +108,54 @@ const submit = () => {
 <template>
     <AppLayout title="Edit Kit">
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                Edit Kit
-            </h2>
+            <div class="flex gap-4 items-center">
+                <div class="flex gap-4 justify-between items-center w-full">
+                    <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                        Edit Kit
+                    </h2>
+                </div>
+                <Link :href="route('kits.index')" class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase bg-gray-800 rounded-md border border-transparent transition duration-150 ease-in-out dark:bg-gray-200 dark:text-gray-800 hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                    Cancel
+                </Link>
+            </div>
         </template>
         <Container>
             <form @submit.prevent="submit" class="space-y-6">
                 <div>
-                    <StatusSelector
-                        v-model="form.status"
-                        :error="form.errors.status"
-                    />
+                    <StatusSelector v-model="form.status" :error="form.errors.status" />
                 </div>
 
                 <div>
                     <InputLabel for="name" value="Name" />
-                    <TextInput
-                        id="name"
-                        v-model="form.name"
-                        type="text"
-                        class="block mt-1 w-full"
-                    />
+                    <TextInput id="name" v-model="form.name" type="text" class="block mt-1 w-full" />
                     <InputError :message="form.errors.name" class="mt-2" />
                 </div>
 
                 <div>
                     <InputLabel for="description" value="Description" />
-                    <textarea
-                        id="description"
-                        v-model="form.description"
+                    <textarea id="description" v-model="form.description"
                         class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                        rows="4"
-                    ></textarea>
+                        rows="4"></textarea>
                     <InputError :message="form.errors.description" class="mt-2" />
                 </div>
 
                 <div>
                     <InputLabel value="Image" />
-                    <div
-                        @drop.prevent="handleDrop"
-                        @dragover.prevent
-                        class="flex justify-center px-6 pt-5 pb-6 mt-1 rounded-md border-2 border-gray-300 border-dashed dark:border-gray-600"
-                    >
+                    <div @drop.prevent="handleDrop" @dragover.prevent
+                        class="flex justify-center px-6 pt-5 pb-6 mt-1 rounded-md border-2 border-gray-300 border-dashed dark:border-gray-600">
                         <div class="space-y-1 text-center">
-                            <svg
-                                class="mx-auto w-12 h-12 text-gray-400"
-                                stroke="currentColor"
-                                fill="none"
-                                viewBox="0 0 48 48"
-                            >
+                            <svg class="mx-auto w-12 h-12 text-gray-400" stroke="currentColor" fill="none"
+                                viewBox="0 0 48 48">
                                 <path
                                     d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <div class="flex text-sm text-gray-600 dark:text-gray-400">
-                                <label
-                                    for="image-upload"
-                                    class="relative font-medium text-orange-600 bg-white rounded-md cursor-pointer dark:bg-gray-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-offset-2 hover:text-orange-500"
-                                >
+                                <label for="image-upload"
+                                    class="relative font-medium text-orange-600 bg-white rounded-md cursor-pointer dark:bg-gray-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-offset-2 hover:text-orange-500">
                                     <span>Upload a file</span>
-                                    <input
-                                        id="image-upload"
-                                        type="file"
-                                        class="sr-only"
-                                        accept="image/png,image/jpeg"
-                                        @change="handleImageUpload"
-                                    />
+                                    <input id="image-upload" type="file" class="sr-only" accept="image/png,image/jpeg"
+                                        @change="handleImageUpload" />
                                 </label>
                                 <p class="pl-1">or drag and drop</p>
                             </div>
@@ -186,13 +165,19 @@ const submit = () => {
                     <div v-if="imagePreview" class="flex items-center p-4 mt-3 bg-gray-50 rounded-md dark:bg-gray-800">
                         <img :src="imagePreview" class="object-cover w-16 h-16 rounded" />
                         <div class="ml-4">
-                            <p class="text-sm text-gray-700 dark:text-gray-300">{{ form.image ? form.image.name : fileName || 'Current image' }}</p>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">{{ form.image ? form.image.name :
+                    fileName ||
+                    'Current image' }}</p>
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
                 </div>
 
-                <div class="flex justify-end">
+                <div class="flex justify-end space-x-4">
+                    <Link :href="route('kits.index')"
+                        class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase bg-gray-800 rounded-md border border-transparent transition duration-150 ease-in-out dark:bg-gray-200 dark:text-gray-800 hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                    Cancel
+                    </Link>
                     <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                         Update Kit
                     </PrimaryButton>
