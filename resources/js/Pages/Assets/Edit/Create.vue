@@ -21,10 +21,12 @@ const form = useForm({
     name: '',
     description: '',
     value: '',
+    custom_id: '',
     category_id: '',
     location_id: '',
     tags: [],
     image: null,
+    additional_files: [],
     status: 'Available' as Status
 });
 
@@ -65,6 +67,21 @@ const handleDrop = (e) => {
         reader.readAsDataURL(file);
     } else {
         alert('Please upload PNG or JPG/JPEG files only');
+    }
+};
+
+const handleAdditionalFiles = (e) => {
+    const files = Array.from(e.target.files);
+    for (const file of files) {
+        if (file.size > 4 * 1024 * 1024) {
+            alert(`File ${file.name} exceeds 4MB limit`);
+            continue;
+        }
+        if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
+            alert(`File ${file.name} is not a supported format`);
+            continue;
+        }
+        form.additional_files.push(file);
     }
 };
 
@@ -110,6 +127,12 @@ const submit = () => {
                 </div>
 
                 <div>
+                    <InputLabel for="custom_id" value="Custom ID" />
+                    <TextInput id="custom_id" v-model="form.custom_id" type="text" class="block mt-1 w-full" />
+                    <InputError :message="form.errors.custom_id" class="mt-2" />
+                </div>
+
+                <div>
                     <InputLabel value="Image" />
                     <div @drop.prevent="handleDrop" @dragover.prevent
                         class="flex justify-center px-6 pt-5 pb-6 mt-1 rounded-md border-2 border-gray-300 border-dashed">
@@ -139,6 +162,27 @@ const submit = () => {
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel value="Additional Files" />
+                    <div class="mt-1">
+                        <input type="file" multiple @change="handleAdditionalFiles" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4 file:rounded-md
+                            file:border-0 file:text-sm file:font-semibold
+                            file:bg-orange-50 file:text-orange-700
+                            hover:file:bg-orange-100"/>
+                        <p class="mt-1 text-xs text-gray-500">Upload multiple files (PNG, JPG, PDF up to 4MB each)</p>
+                    </div>
+                    <div v-if="form.additional_files.length > 0" class="mt-3 space-y-2">
+                        <div v-for="(file, index) in form.additional_files" :key="index" class="flex items-center p-2 bg-gray-50 rounded-md">
+                            <div class="ml-2">
+                                <p class="text-sm text-gray-700">{{ file.name }}</p>
+                                <p class="text-xs text-gray-500">{{ (file.size / 1024 / 1024).toFixed(2) }} MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    <InputError :message="form.errors.additional_files" class="mt-2" />
                 </div>
 
                 <!-- Tag/Category/Location  -->

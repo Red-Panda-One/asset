@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Container from '@/Components/Container.vue';
-import { PhotoIcon } from '@heroicons/vue/24/solid';
+import { PhotoIcon, DocumentIcon } from '@heroicons/vue/24/solid';
 import { ref, computed } from 'vue';
 import type { KitResponse } from '@/types/kit';
 import Modal from '@/Components/Modal.vue';
@@ -11,6 +11,27 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { router } from '@inertiajs/vue3';
 import QRCodeLabel from '@/Components/QRCodeLabel.vue';
+
+const previewFile = ref<{ name: string; file_path: string; type: string } | null>(null);
+
+const getFileType = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) return 'image';
+    if (extension === 'pdf') return 'pdf';
+    return 'other';
+};
+
+const handlePreview = (file: any) => {
+    previewFile.value = {
+        name: file.name,
+        file_path: file.file_path,
+        type: getFileType(file.name)
+    };
+};
+
+const closePreview = () => {
+    previewFile.value = null;
+};
 
 declare function route(name: 'kits.show', id: string): string;
 
@@ -32,13 +53,19 @@ interface Props {
     }>;
 }
 
-
 const props = defineProps<Props>();
 
 const showManageModal = ref(false);
 const searchQuery = ref('');
 const availableAssets = ref([]);
 
+const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
 
 const columns = [
     { key: 'name', label: 'Name' },
@@ -97,8 +124,6 @@ const getLinkedKitId = (asset) => {
 };
 
 const kitUrl = computed(() => route('kits.show', props.kit.data.id));
-
-console.log(props.unavailableAssets);
 </script>
 
 <template>
@@ -161,6 +186,10 @@ console.log(props.unavailableAssets);
                                     <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ props.kit.data.id }}</dd>
                                 </div>
                                 <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Custom ID</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ props.kit.data.custom_id || '-' }}</dd>
+                                </div>
+                                <div>
                                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created</dt>
                                     <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">
                                         {{ new Date(props.kit.data.created_at).toLocaleDateString('en-US', {
@@ -201,6 +230,41 @@ console.log(props.unavailableAssets);
                                             :url="kitUrl"
                                             type="KIT"
                                         />
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Additional Files</dt>
+                                    <dd class="mt-1">
+                                        <div class="space-y-2">
+                                            <div v-for="file in props.kit.data.additional_files" :key="file.id"
+                                                 class="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+                                                <div class="flex items-center gap-3">
+                                                    <DocumentIcon class="w-5 h-5 text-gray-400" />
+                                                    <div>
+                                                        <p class="font-medium text-gray-900 dark:text-gray-100">{{ file.name }}</p>
+                                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatFileSize(file.size) }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    <button
+                                                        @click="handlePreview(file)"
+                                                        class="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                                                    >
+                                                        Preview
+                                                    </button>
+                                                    <a
+                                                        :href="`/storage/${file.file_path}`"
+                                                        target="_blank"
+                                                        class="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                                                    >
+                                                        Download
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div v-if="!props.kit.data.additional_files?.length" class="text-sm text-gray-500 dark:text-gray-400">
+                                                No additional files
+                                            </div>
+                                        </div>
                                     </dd>
                                 </div>
                             </dl>
@@ -251,6 +315,39 @@ console.log(props.unavailableAssets);
                     </div>
                     <div v-if="filteredAssets.length === 0" class="py-4 text-center text-gray-500 dark:text-gray-400">
                         No assets found
+                    </div>
+                </div>
+            </div>
+        </Modal>
+        <!-- File Preview Modal -->
+        <Modal :show="!!previewFile" @close="closePreview" maxWidth="4xl">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ previewFile?.name }}</h2>
+                    <button @click="closePreview" class="text-gray-400 hover:text-gray-500">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="relative">
+                    <img
+                        v-if="previewFile?.type === 'image'"
+                        :src="`/storage/${previewFile.file_path}`"
+                        class="max-w-full h-auto rounded-lg"
+                        :alt="previewFile.name"
+                    />
+                    <iframe
+                        v-else-if="previewFile?.type === 'pdf'"
+                        :src="`/storage/${previewFile.file_path}`"
+                        class="w-full h-[80vh] rounded-lg"
+                    ></iframe>
+                    <div
+                        v-else
+                        class="p-4 text-center text-gray-500 dark:text-gray-400"
+                    >
+                        Preview not available for this file type
                     </div>
                 </div>
             </div>

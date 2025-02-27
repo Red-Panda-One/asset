@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdditionalFileResource;
 use App\Http\Resources\AssetResource;
 use App\Http\Resources\KitResource;
 use App\Models\Asset;
@@ -36,11 +37,13 @@ class KitController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'custom_id' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
             'status' => 'required|string|max:255',
         ]);
 
-        $kitData = $request->only(['name', 'description', 'status']);
+        $kitData = $request->only(['name', 'description', 'status', 'custom_id']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('kits', 'public');
@@ -52,6 +55,21 @@ class KitController extends Controller
             'team_id' => $request->user()->currentTeam->id
         ]);
 
+        // Handle additional files
+        if ($request->hasFile('additional_files')) {
+            foreach ($request->file('additional_files') as $file) {
+                $path = $file->store('additional-files', 'public');
+                $additionalFile = AdditionalFileController::create([
+                    'file_path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+                $kit->additionalFiles()->attach($additionalFile->id);
+                Log::info('Additional file uploaded successfully', ['path' => $path]);
+            }
+        }
+
         return redirect()->route('kits.index')->with('flash', [
             'banner' => 'Tag updated successfully.',
             'bannerStyle' =>'success',
@@ -62,7 +80,7 @@ class KitController extends Controller
     public function show(Kit $kit)
     {
         return Inertia::render('Kits/Show', [
-            'kit' => new KitResource($kit),
+            'kit' => new KitResource($kit->load(['additionalFiles'])),
             'assets' => AssetResource::collection(
                 Asset::where('team_id', request()->user()->currentTeam->id)->get()
             ),

@@ -16,6 +16,8 @@ interface Kit {
     description: string;
     image?: string;
     asset_count: number;
+    custom_id: string;
+    status: string;
 }
 
 interface Column {
@@ -57,10 +59,11 @@ const props = withDefaults(defineProps<{
 });
 
 const columns = [
+    { key: 'custom_id', label: 'ID' },
     { key: 'name', label: 'Name' },
     { key: 'description', label: 'Description' },
     { key: 'asset_count', label: 'Assets' },
-    { key: 'status', label: 'Status' }, // New column
+    { key: 'status', label: 'Status' },
 ];
 
 const handleAdd = () => {
@@ -166,6 +169,10 @@ console.log(props.kits);
                             />
                         </div>
                     </div>
+                </template>
+
+                <template #cell-custom_id="{ item }">
+                    <div class="text-gray-600 dark:text-gray-400">{{ item.custom_id }}</div>
                 </template>
 
                 <template #cell-asset_count="{ item }">

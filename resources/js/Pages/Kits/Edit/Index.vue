@@ -16,6 +16,7 @@ interface KitData {
     description: string;
     image?: string;
     status: Status;
+    custom_id?: string;
 }
 
 interface KitProps {
@@ -37,13 +38,17 @@ interface KitForm {
     description: string;
     image: File | null;
     status: Status;
+    custom_id: string;
+    additional_files: File[];
 }
 
 const form = useForm<KitForm>({
     name: kitData.name,
     description: kitData.description,
     image: null,
-    status: kitData.status || 'Available'
+    status: kitData.status || 'Available',
+    custom_id: kitData.custom_id || '',
+    additional_files: []
 });
 
 const imagePreview = ref(kitData.image ? `/storage/${kitData.image}` : null);
@@ -68,6 +73,22 @@ const handleImageUpload = (e: Event) => {
         };
         reader.readAsDataURL(file);
     }
+};
+
+const handleAdditionalFilesUpload = (e: Event) => {
+    if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
+    const files = Array.from(e.target.files);
+    files.forEach(file => {
+        if (file.size > 4 * 1024 * 1024) {
+            alert('Each file should not exceed 4MB');
+            return;
+        }
+        form.additional_files.push(file);
+    });
+};
+
+const removeAdditionalFile = (index: number) => {
+    form.additional_files.splice(index, 1);
 };
 
 const handleDrop = (e: DragEvent) => {
