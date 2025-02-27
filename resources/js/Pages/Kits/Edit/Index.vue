@@ -10,6 +10,14 @@ import { ref } from 'vue';
 import StatusSelector from '@/Components/StatusSelector.vue';
 import type { Status } from '@/types/status';
 
+const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
 interface KitData {
     id: string;
     name: string;
@@ -40,6 +48,7 @@ interface KitForm {
     status: Status;
     custom_id: string;
     additional_files: File[];
+    remove_files: File[];
 }
 
 const form = useForm<KitForm>({
@@ -48,11 +57,22 @@ const form = useForm<KitForm>({
     image: null,
     status: kitData.status || 'Available',
     custom_id: kitData.custom_id || '',
-    additional_files: []
+    additional_files: [],
+    remove_files: []
 });
 
 const imagePreview = ref(kitData.image ? `/storage/${kitData.image}` : null);
 const fileName = ref('');
+const existingFiles = ref(props.kit.data.additional_files || []);
+
+const removeExistingFile = (fileId) => {
+    existingFiles.value = existingFiles.value.filter(file => file.id !== fileId);
+    form.remove_files.push(fileId);
+};
+
+const removeNewFile = (index) => {
+    form.additional_files.splice(index, 1);
+};
 
 const handleImageUpload = (e: Event) => {
     if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
@@ -75,21 +95,21 @@ const handleImageUpload = (e: Event) => {
     }
 };
 
-const handleAdditionalFilesUpload = (e: Event) => {
-    if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
+const handleAdditionalFiles = (e) => {
     const files = Array.from(e.target.files);
-    files.forEach(file => {
+    for (const file of files) {
         if (file.size > 4 * 1024 * 1024) {
-            alert('Each file should not exceed 4MB');
-            return;
+            alert(`File ${file.name} exceeds 4MB limit`);
+            continue;
+        }
+        if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
+            alert(`File ${file.name} is not a supported format`);
+            continue;
         }
         form.additional_files.push(file);
-    });
+    }
 };
 
-const removeAdditionalFile = (index: number) => {
-    form.additional_files.splice(index, 1);
-};
 
 const handleDrop = (e: DragEvent) => {
     e.preventDefault();
@@ -158,6 +178,49 @@ const submit = () => {
                         class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                         rows="4"></textarea>
                     <InputError :message="form.errors.description" class="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel for="custom_id" value="Custom ID" />
+                    <TextInput id="custom_id" v-model="form.custom_id" type="text" class="block mt-1 w-full" />
+                    <InputError :message="form.errors.custom_id" class="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel value="Additional Files" />
+                    <div class="mt-1">
+                        <input type="file" multiple @change="handleAdditionalFiles" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"/>
+                        <p class="mt-1 text-xs text-gray-500">Upload multiple files (PNG, JPG, PDF up to 4MB each)</p>
+                    </div>
+
+                     <!-- Display existing files -->
+                     <div v-if="existingFiles.length > 0" class="mt-3 space-y-2">
+                        <h4 class="text-sm font-medium text-gray-700">Existing Files:</h4>
+                        <div v-for="file in existingFiles" :key="file.id" class="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                            <div class="ml-2">
+                                <p class="text-sm text-gray-700">{{ file.name }}</p>
+                                <p class="text-xs text-gray-500">{{ formatFileSize(file.size) }}</p>
+                            </div>
+                            <button type="button" @click="removeExistingFile(file.id)" class="px-2 py-1 text-xs font-medium text-red-600 hover:text-red-800 focus:outline-none">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Display newly uploaded files -->
+                    <div v-if="form.additional_files.length > 0" class="mt-3 space-y-2">
+                        <h4 class="text-sm font-medium text-gray-700">New Files:</h4>
+                        <div v-for="(file, index) in form.additional_files" :key="index" class="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                            <div class="ml-2">
+                                <p class="text-sm text-gray-700">{{ file.name }}</p>
+                                <p class="text-xs text-gray-500">{{ (file.size / 1024 / 1024).toFixed(2) }} MB</p>
+                            </div>
+                            <button type="button" @click="removeNewFile(index)" class="px-2 py-1 text-xs font-medium text-red-600 hover:text-red-800 focus:outline-none">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                    <InputError :message="form.errors.additional_files" class="mt-2" />
                 </div>
 
                 <div>

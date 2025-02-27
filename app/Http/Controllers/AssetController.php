@@ -70,7 +70,6 @@ class AssetController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'status' => 'required|string|max:255',
-            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
         ]);
 
         $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status', 'custom_id']);
@@ -94,6 +93,7 @@ class AssetController extends Controller
 
         // Handle removed files
         $submittedFileIds = $request->input('existing_files', []);
+        $currentFileIds = $asset->additionalFiles->pluck('id')->toArray();
         $removedFileIds = array_diff($currentFileIds, $submittedFileIds);
 
         if (!empty($removedFileIds)) {
