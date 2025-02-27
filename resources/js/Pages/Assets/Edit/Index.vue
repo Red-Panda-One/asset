@@ -156,6 +156,12 @@ const submit = () => {
                 </div>
 
                 <div>
+                    <InputLabel for="custom_id" value="Custom ID" />
+                    <TextInput id="custom_id" v-model="form.custom_id" type="text" class="block mt-1 w-full" />
+                    <InputError :message="form.errors.custom_id" class="mt-2" />
+                </div>
+
+                <div>
                     <InputLabel for="name" value="Name" />
                     <TextInput id="name" v-model="form.name" type="text" class="block mt-1 w-full" />
                     <InputError :message="form.errors.name" class="mt-2" />
@@ -209,12 +215,32 @@ const submit = () => {
                     <InputError :message="form.errors.image" class="mt-2" />
                 </div>
 
-                <!-- Add after the image upload section -->
+
+                <!-- Tag/Location/Category-->
                 <div>
-                    <InputLabel for="custom_id" value="Custom ID" />
-                    <TextInput id="custom_id" v-model="form.custom_id" type="text" class="block mt-1 w-full" />
-                    <InputError :message="form.errors.custom_id" class="mt-2" />
+                    <InputLabel for="category" value="Category" />
+                    <CustomMultiselect id="category" v-model="form.category_id" :options="categories.data" label="name"
+                    value-prop="id" placeholder="Select a category" class="mt-1" />
+                    <InputError :message="form.errors.category_id" class="mt-2" />
                 </div>
+
+                <div>
+                    <InputLabel for="location" value="Location" />
+                    <CustomMultiselect id="location" v-model="form.location_id" :options="locations.data" label="name"
+                    value-prop="id" placeholder="Select a location" class="mt-1" />
+                    <InputError :message="form.errors.location_id" class="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel for="tags" value="Tags" />
+                    <div class="relative">
+
+                        <SearchMultiselect id="tags" v-model="form.tags" :options="tags.data" label="name"
+                        value-prop="id" :multiple=true placeholder="Search and select tags" class="mt-1" />
+                    </div>
+                    <InputError :message="form.errors.tags" class="mt-2" />
+                </div>
+
                 <div>
                     <InputLabel value="Additional Files" />
                     <div class="mt-1">
@@ -250,32 +276,6 @@ const submit = () => {
                     </div>
                     <InputError :message="form.errors.additional_files" class="mt-2" />
                 </div>
-
-                <!-- Tag/Location/Category-->
-                <div>
-                    <InputLabel for="category" value="Category" />
-                    <CustomMultiselect id="category" v-model="form.category_id" :options="categories.data" label="name"
-                        value-prop="id" placeholder="Select a category" class="mt-1" />
-                    <InputError :message="form.errors.category_id" class="mt-2" />
-                </div>
-
-                <div>
-                    <InputLabel for="location" value="Location" />
-                    <CustomMultiselect id="location" v-model="form.location_id" :options="locations.data" label="name"
-                        value-prop="id" placeholder="Select a location" class="mt-1" />
-                    <InputError :message="form.errors.location_id" class="mt-2" />
-                </div>
-
-                <div>
-                    <InputLabel for="tags" value="Tags" />
-                    <div class="relative">
-
-                        <SearchMultiselect id="tags" v-model="form.tags" :options="tags.data" label="name"
-                            value-prop="id" :multiple=true placeholder="Search and select tags" class="mt-1" />
-                    </div>
-                    <InputError :message="form.errors.tags" class="mt-2" />
-                </div>
-
 
 
                 <div class="flex justify-end">
