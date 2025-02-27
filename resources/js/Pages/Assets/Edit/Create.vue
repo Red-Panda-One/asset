@@ -10,6 +10,7 @@ import { ref } from 'vue';
 import Multiselect from '@/Components/Multiselect.vue';
 import StatusSelector from '@/Components/StatusSelector.vue';
 import type { Status } from '@/types/status';
+import SearchMultiselect from '@/Components/SearchMultiselect.vue';
 
 defineProps({
     categories: Object,
@@ -167,11 +168,7 @@ const submit = () => {
                 <div>
                     <InputLabel value="Additional Files" />
                     <div class="mt-1">
-                        <input type="file" multiple @change="handleAdditionalFiles" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500
-                            file:mr-4 file:py-2 file:px-4 file:rounded-md
-                            file:border-0 file:text-sm file:font-semibold
-                            file:bg-orange-50 file:text-orange-700
-                            hover:file:bg-orange-100"/>
+                        <input type="file" multiple @change="handleAdditionalFiles" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"/>
                         <p class="mt-1 text-xs text-gray-500">Upload multiple files (PNG, JPG, PDF up to 4MB each)</p>
                     </div>
                     <div v-if="form.additional_files.length > 0" class="mt-3 space-y-2">
@@ -200,12 +197,17 @@ const submit = () => {
                     <InputError :message="form.errors.location_id" class="mt-2" />
                 </div>
 
+
                 <div>
                     <InputLabel for="tags" value="Tags" />
-                    <Multiselect id="tags" v-model="form.tags" :options="tags.data" label="name" value-prop="id"
-                        :multiple="true" placeholder="Select tags" class="mt-1" />
+                    <div class="relative">
+
+                        <SearchMultiselect id="tags" v-model="form.tags" :options="tags.data" label="name"
+                        value-prop="id" :multiple=true placeholder="Search and select tags" class="mt-1" />
+                    </div>
                     <InputError :message="form.errors.tags" class="mt-2" />
                 </div>
+
                 <div>
                     <StatusSelector v-model="form.status" :error="form.errors.status" />
                 </div>

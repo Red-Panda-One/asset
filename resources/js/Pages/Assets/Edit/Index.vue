@@ -7,6 +7,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SearchMultiselect from '@/Components/SearchMultiselect.vue';
+import Multiselect from '@/Components/Multiselect.vue';
 import { ref } from 'vue';
 import StatusSelector from '@/Components/StatusSelector.vue';
 import type { Status } from '@/types/status';
@@ -22,7 +23,7 @@ const props = defineProps({
     selectedTags: Array,
 });
 
-console.log(props.asset);
+console.log(props);
 
 const existingFiles = ref(props.asset.data.additional_files || []);
 
@@ -219,15 +220,15 @@ const submit = () => {
                 <!-- Tag/Location/Category-->
                 <div>
                     <InputLabel for="category" value="Category" />
-                    <CustomMultiselect id="category" v-model="form.category_id" :options="categories.data" label="name"
-                    value-prop="id" placeholder="Select a category" class="mt-1" />
+                    <Multiselect id="category" v-model="form.category_id" :options="categories.data" label="name"
+                        value-prop="id" placeholder="Select a category" class="mt-1" />
                     <InputError :message="form.errors.category_id" class="mt-2" />
                 </div>
 
                 <div>
                     <InputLabel for="location" value="Location" />
-                    <CustomMultiselect id="location" v-model="form.location_id" :options="locations.data" label="name"
-                    value-prop="id" placeholder="Select a location" class="mt-1" />
+                    <Multiselect id="location" v-model="form.location_id" :options="locations.data" label="name"
+                        value-prop="id" placeholder="Select a location" class="mt-1" />
                     <InputError :message="form.errors.location_id" class="mt-2" />
                 </div>
 
