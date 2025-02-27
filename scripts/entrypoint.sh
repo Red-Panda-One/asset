@@ -34,8 +34,10 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Create storage symlink
+# Create storage symlink and set permissions
 php artisan storage:link
+chmod -R 775 /var/www/html/storage/app/public
+chown -R www-data:www-data /var/www/html/storage/app/public
 
 # Start supervisord
 exec supervisord -c /etc/supervisor/supervisord.conf

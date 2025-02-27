@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdditionalFileResource;
 use App\Http\Resources\AssetResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\LocationResource;
 use App\Http\Resources\TagResource;
+use App\Models\AdditionalFile;
 use App\Models\Asset;
 use App\Models\Categories;
 use App\Models\Location;
@@ -60,7 +62,9 @@ class AssetController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'value' => 'nullable|numeric',
+            'custom_id' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
             'category_id' => 'nullable|exists:categories,id',
             'location_id' => 'nullable|exists:locations,id',
             'tags' => 'nullable|array',
@@ -68,7 +72,7 @@ class AssetController extends Controller
             'status' => 'required|string|max:255',
         ]);
 
-        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status']);
+        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status', 'custom_id']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('assets', 'public');
@@ -87,6 +91,40 @@ class AssetController extends Controller
             $asset->tags()->sync($request->tags);
         }
 
+        // Handle removed files
+        $submittedFileIds = $request->input('existing_files', []);
+        $currentFileIds = $asset->additionalFiles->pluck('id')->toArray();
+        $removedFileIds = array_diff($currentFileIds, $submittedFileIds);
+
+        if (!empty($removedFileIds)) {
+            foreach ($removedFileIds as $fileId) {
+                $file = AdditionalFile::find($fileId);
+                if ($file) {
+                    // Delete the physical file
+                    Storage::disk('public')->delete($file->file_path);
+                    // Detach and delete the file record
+                    $asset->additionalFiles()->detach($fileId);
+                    $file->delete();
+                    Log::info('File removed successfully', ['file_id' => $fileId]);
+                }
+            }
+        }
+
+        // Handle additional files
+        if ($request->hasFile('additional_files')) {
+            foreach ($request->file('additional_files') as $file) {
+                $path = $file->store('additional-files', 'public');
+                $additionalFile = AdditionalFile::create([
+                    'file_path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+                $asset->additionalFiles()->attach($additionalFile->id);
+                Log::info('Additional file uploaded successfully', ['path' => $path]);
+            }
+        }
+
         return redirect()->route('assets.index')->with('flash', [
             'banner' => 'Asset created successfully.',
             'bannerStyle' => 'success',
@@ -100,7 +138,7 @@ class AssetController extends Controller
     public function show(Asset $asset)
     {
         return Inertia::render('Assets/Show', [
-            'asset' => new AssetResource($asset->load(['category', 'location', 'tags'])),
+            'asset' => new AssetResource($asset->load(['category', 'location', 'tags', 'additionalFiles'])),
         ]);
     }
 
@@ -110,7 +148,7 @@ class AssetController extends Controller
     public function edit(Asset $asset)
     {
         return Inertia::render('Assets/Edit/Index', [
-            'asset' => new AssetResource($asset->load(['category', 'location', 'tags'])),
+            'asset' => new AssetResource($asset->load(['category', 'location', 'tags', 'additionalFiles'])),
             'categories' => CategoryResource::collection(
                 Categories::where('team_id', request()->user()->currentTeam->id)->get()
             ),
@@ -129,6 +167,8 @@ class AssetController extends Controller
      */
     public function update(Request $request, Asset $asset)
     {
+        // Get current additional files before any changes
+        $currentFileIds = $asset->additionalFiles->pluck('id')->toArray();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -140,6 +180,8 @@ class AssetController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'status' => 'required|string|max:255',
+            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'remove_files.*' => 'nullable|exists:additional_files,id',
         ]);
 
         $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status']);
@@ -186,9 +228,41 @@ class AssetController extends Controller
             Log::info('Asset tags updated', ['new_tags' => $request->tags]);
         }
 
+        // Handle removed files
+        $removedFileIds = $request->input('remove_files', []);
+
+        if (!empty($removedFileIds)) {
+            foreach ($removedFileIds as $fileId) {
+                $file = AdditionalFile::find($fileId);
+                if ($file) {
+                    // Delete the physical file
+                    Storage::disk('public')->delete($file->file_path);
+                    // Detach and delete the file record
+                    $asset->additionalFiles()->detach($fileId);
+                    $file->delete();
+                    Log::info('File removed successfully', ['file_id' => $fileId]);
+                }
+            }
+        }
+
+        // Handle additional files
+        if ($request->hasFile('additional_files')) {
+            foreach ($request->file('additional_files') as $file) {
+                $path = $file->store('additional-files', 'public');
+                $additionalFile = AdditionalFile::create([
+                    'file_path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+                $asset->additionalFiles()->attach($additionalFile->id);
+                Log::info('Additional file uploaded successfully', ['path' => $path]);
+            }
+        }
+
         Log::info('Asset update completed successfully', ['asset_id' => $asset->id]);
 
-        return redirect()->route('assets.index')->with('flash', [
+        return redirect()->route('assets.show', $asset)->with('flash', [
             'banner' => 'Asset updated successfully.',
             'bannerStyle' => 'success',
             'bannerTimeout' => 2000,
