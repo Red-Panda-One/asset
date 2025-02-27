@@ -8,6 +8,7 @@ import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { PhotoIcon } from '@heroicons/vue/24/solid';
+import NeumorphicBadge from '@/Components/NeumorphicBadge.vue';
 
 interface Kit {
     id: string;
@@ -15,6 +16,8 @@ interface Kit {
     description: string;
     image?: string;
     asset_count: number;
+    custom_id: string;
+    status: string;
 }
 
 interface Column {
@@ -56,9 +59,11 @@ const props = withDefaults(defineProps<{
 });
 
 const columns = [
+    { key: 'custom_id', label: 'ID' },
     { key: 'name', label: 'Name' },
     { key: 'description', label: 'Description' },
     { key: 'asset_count', label: 'Assets' },
+    { key: 'status', label: 'Status' },
 ];
 
 const handleAdd = () => {
@@ -148,18 +153,34 @@ console.log(props.kits);
 
                 <template #cell-name="{ item }">
                     <div class="flex items-center cursor-pointer" @click="router.visit(route('kits.show', item.id))">
-                        <div v-if="item.image" class="flex-shrink-0 mr-4 w-10 h-10">
-                            <img :src="`/storage/${item.image}`" class="object-cover w-10 h-10 rounded-full" />
+                        <div v-if="item.image" class="flex-shrink-0 mr-4 w-12 h-12">
+                            <img :src="`/storage/${item.image}`" class="object-cover w-12 h-12 rounded-full" />
                         </div>
-                        <div v-else class="flex justify-center items-center mr-4 w-10 h-10 bg-gray-100 rounded-lg dark:bg-gray-700">
+                        <div v-else class="flex justify-center items-center mr-4 w-12 h-12 bg-gray-100 rounded-lg dark:bg-gray-700">
                                 <PhotoIcon class="w-6 h-6 text-gray-400" />
                         </div>
-                        <div class="text-orange-600 hover:text-orange-700">{{ item.name }}</div>
+                        <div class="flex flex-col gap-2">
+                            <div class="text-orange-600 hover:text-orange-700">{{ item.name }}</div>
+                            <NeumorphicBadge
+                                :color="item.status === 'Available' ? '#D8F1E2' :
+                                    ['Retired', 'Lost', 'Faulty'].includes(item.status) ? '#FFE5E5' : '#D8E9FE'"
+                                :text="item.status"
+                                class="text-xs"
+                            />
+                        </div>
                     </div>
+                </template>
+
+                <template #cell-custom_id="{ item }">
+                    <div class="text-gray-600 dark:text-gray-400">{{ item.custom_id }}</div>
                 </template>
 
                 <template #cell-asset_count="{ item }">
                     <div class="text-gray-600 dark:text-gray-400">{{ item.asset_count }}</div>
+                </template>
+
+                <template #cell-status="{ item }">
+                    <div class="text-gray-600 dark:text-gray-400">{{ item.status }}</div>
                 </template>
 
                 <template #pagination>

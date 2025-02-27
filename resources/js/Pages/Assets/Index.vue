@@ -25,12 +25,14 @@ interface Props {
 const props = defineProps<Props>();
 
 const columns = [
+    { key: 'custom_id', label: 'ID' },
     { key: 'name', label: 'Name' },
     { key: 'value', label: 'Value' },
     { key: 'category', label: 'Category' },
     { key: 'tags', label: 'Tags' },
     { key: 'location', label: 'Location' },
     { key: 'description', label: 'Description' },
+    { key: 'status', label: 'Status' }, 
 ];
 
 const handleAdd = (): void => {
@@ -81,30 +83,17 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
             </h2>
         </template>
         <Container>
-            <Table
-                title="Assets"
-                description="A list of all assets in your organization."
-                :columns="columns"
-                :items="assets.data"
-                @cta="handleAdd"
-                @edit="handleEdit"
-                @delete="confirmAssetDeletion"
-            >
+            <Table title="Assets" description="A list of all assets in your organization." :columns="columns"
+                :items="assets.data" @cta="handleAdd" @edit="handleEdit" @delete="confirmAssetDeletion">
                 <template #header>
                     <div class="px-4 sm:px-6 lg:px-8">
                         <div class="flex gap-4 items-center">
                             <div class="flex-1">
-                                <input
-                                    v-model="search"
-                                    type="search"
-                                    placeholder="Search assets..."
-                                    class="block py-1.5 w-full text-gray-900 rounded-md border-0 ring-1 ring-inset ring-gray-300 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:placeholder:text-gray-400"
-                                />
+                                <input v-model="search" type="search" placeholder="Search assets..."
+                                    class="block py-1.5 w-full text-gray-900 rounded-md border-0 ring-1 ring-inset ring-gray-300 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:placeholder:text-gray-400" />
                             </div>
-                            <select
-                                v-model="perPage"
-                                class="py-1.5 pr-10 pl-3 text-gray-900 rounded-md border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-orange-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
-                            >
+                            <select v-model="perPage"
+                                class="py-1.5 pr-10 pl-3 text-gray-900 rounded-md border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-orange-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600">
                                 <option value="10">10 per page</option>
                                 <option value="20">20 per page</option>
                                 <option value="50">50 per page</option>
@@ -118,17 +107,22 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 <template #cell-name="{ item }">
                     <div class="flex items-center cursor-pointer" @click="router.visit(route('assets.show', item.id))">
                         <div class="flex-shrink-0 mr-4 w-10 h-10">
-                            <img
-                                v-if="item.image"
-                                :src="`/storage/${item.image}`"
-                                class="object-cover w-10 h-10 rounded-lg"
-                                alt="Asset image"
-                            />
-                            <div v-else class="flex justify-center items-center w-10 h-10 bg-gray-100 rounded-lg dark:bg-gray-700">
+                            <img v-if="item.image" :src="`/storage/${item.image}`"
+                                class="object-cover w-10 h-10 rounded-lg" alt="Asset image" />
+                            <div v-else
+                                class="flex justify-center items-center w-10 h-10 bg-gray-100 rounded-lg dark:bg-gray-700">
                                 <PhotoIcon class="w-6 h-6 text-gray-400" />
                             </div>
                         </div>
-                        <div class="text-orange-600 hover:text-orange-700">{{ item.name }}</div>
+                        <div class="flex flex-col gap-2">
+                            <div class="text-orange-600 hover:text-orange-700">{{ item.name }}</div>
+                            <NeumorphicBadge
+                                :color="item.status === 'Available' ? '#D8F1E2' :
+                                    ['Retired', 'Lost', 'Faulty'].includes(item.status) ? '#FFE5E5' : '#D8E9FE'"
+                                :text="item.status"
+                                class="text-xs"
+                            />
+                        </div>
                     </div>
                 </template>
 
@@ -137,22 +131,13 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                 </template>
 
                 <template #cell-category="{ item }">
-                    <NeumorphicBadge
-                        v-if="item.category"
-                        color="#E6E6FA"
-                        :text="item.category.name"
-                    />
+                    <NeumorphicBadge v-if="item.category" color="#E6E6FA" :text="item.category.name" />
                     <span v-else>-</span>
                 </template>
 
                 <template #cell-tags="{ item }">
                     <div class="flex flex-wrap gap-1">
-                        <NeumorphicBadge
-                            v-for="tag in item.tags"
-                            :key="tag.id"
-                            color="#FFE4E1"
-                            :text="tag.name"
-                        />
+                        <NeumorphicBadge v-for="tag in item.tags" :key="tag.id" color="#FFE4E1" :text="tag.name" />
                         <span v-if="!item.tags?.length">-</span>
                     </div>
                 </template>
@@ -161,25 +146,28 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                     {{ item.location?.name || '-' }}
                 </template>
 
+                <template #cell-custom_id="{ item }">
+                    <div class="text-gray-600 dark:text-gray-400">{{ item.custom_id }}</div>
+                </template>
+
+                <template #cell-status="{ item }">
+                    <div class="text-gray-600 dark:text-gray-400">{{ item.status }}</div>
+                </template>
+
                 <template #pagination>
                     <div v-if="assets.meta" class="px-4 py-3 sm:px-6">
                         <div class="flex justify-between items-center">
                             <div class="text-sm text-gray-700 dark:text-gray-300">
-                                Showing {{ assets.meta.from }} to {{ assets.meta.to }} of {{ assets.meta.total }} results
+                                Showing {{ assets.meta.from }} to {{ assets.meta.to }} of {{ assets.meta.total }}
+                                results
                             </div>
                             <div class="flex space-x-2">
-                                <Link
-                                    v-for="link in assets.meta.links"
-                                    :key="link.label"
-                                    :href="link.url"
-                                    v-html="link.label"
-                                    class="px-3 py-1 rounded-md"
-                                    :class="{
-                                        'bg-orange-600 text-white': link.active,
-                                        'text-gray-600 dark:text-gray-400': !link.active,
-                                        'opacity-50 cursor-not-allowed': !link.url
-                                    }"
-                                />
+                                <Link v-for="link in assets.meta.links" :key="link.label" :href="link.url"
+                                    v-html="link.label" class="px-3 py-1 rounded-md" :class="{
+                'bg-orange-600 text-white': link.active,
+                'text-gray-600 dark:text-gray-400': !link.active,
+                'opacity-50 cursor-not-allowed': !link.url
+            }" />
                             </div>
                         </div>
                     </div>
@@ -200,11 +188,7 @@ watch([search, perPage], ([newSearch, newPerPage]) => {
                         Cancel
                     </SecondaryButton>
 
-                    <PrimaryButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': false }"
-                        @click="deleteAsset"
-                    >
+                    <PrimaryButton class="ms-3" :class="{ 'opacity-25': false }" @click="deleteAsset">
                         Delete
                     </PrimaryButton>
                 </template>

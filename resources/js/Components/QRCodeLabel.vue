@@ -61,17 +61,17 @@ const printLabel = (): void => {
                     }
                     .property-text {
                         font-family: Arial, sans-serif;
-                        font-size: 8pt;
+                        font-size: 7pt;
                         color: #374151;
                         margin: 0;
                     }
                     .team-name {
                         font-family: Arial, sans-serif;
-                        font-size: 14pt;
+                        font-size: 9pt;
                         font-weight: bold;
                         color: #000;
                         margin: 0;
-                        margin-bottom: 0.1in;
+                        margin-bottom: 0.2in;
                     }
                     .item-type {
                         font-family: Arial, sans-serif;
@@ -81,7 +81,7 @@ const printLabel = (): void => {
                     }
                     .item-name {
                         font-family: Arial, sans-serif;
-                        font-size: 12pt;
+                        font-size: 10pt;
                         font-weight: bold;
                         color: #000;
                         margin: 0;
@@ -91,7 +91,7 @@ const printLabel = (): void => {
                     }
                     .item-id {
                         font-family: Arial, sans-serif;
-                        font-size: 10pt;
+                        font-size: 6pt;
                         color: #374151;
                         margin: 0;
                     }
@@ -127,9 +127,9 @@ const printLabel = (): void => {
                     </div>
                     <div class="info-section">
                         <p class="property-text">PROPERTY OF</p>
-                        <p class="team-name">${team.name}</p>
+                        <p class="team-name">${team.name.slice(0, 30)}</p>
                         <p class="item-type">${props.type? props.type: "ITEM" }</p>
-                        <p class="item-name">${props.name}</p>
+                        <p class="item-name">${props.name.slice(0, 30)}</p>
                         <p class="item-id">${props.id}</p>
                     </div>
                 </div>

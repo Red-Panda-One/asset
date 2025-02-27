@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdditionalFileResource;
 use App\Http\Resources\AssetResource;
 use App\Http\Resources\KitResource;
+use App\Models\AdditionalFile;
 use App\Models\Asset;
 use App\Models\Kit;
 use Illuminate\Http\Request;
@@ -36,10 +38,13 @@ class KitController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'custom_id' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'status' => 'required|string|max:255',
         ]);
 
-        $kitData = $request->only(['name', 'description']);
+        $kitData = $request->only(['name', 'description', 'status', 'custom_id']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('kits', 'public');
@@ -51,6 +56,21 @@ class KitController extends Controller
             'team_id' => $request->user()->currentTeam->id
         ]);
 
+        // Handle additional files
+        if ($request->hasFile('additional_files')) {
+            foreach ($request->file('additional_files') as $file) {
+                $path = $file->store('additional-files', 'public');
+                $additionalFile = AdditionalFileController::create([
+                    'file_path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+                $kit->additionalFiles()->attach($additionalFile->id);
+                Log::info('Additional file uploaded successfully', ['path' => $path]);
+            }
+        }
+
         return redirect()->route('kits.index')->with('flash', [
             'banner' => 'Tag updated successfully.',
             'bannerStyle' =>'success',
@@ -61,7 +81,7 @@ class KitController extends Controller
     public function show(Kit $kit)
     {
         return Inertia::render('Kits/Show', [
-            'kit' => new KitResource($kit),
+            'kit' => new KitResource($kit->load(['additionalFiles'])),
             'assets' => AssetResource::collection(
                 Asset::where('team_id', request()->user()->currentTeam->id)->get()
             ),
@@ -77,7 +97,7 @@ class KitController extends Controller
     public function edit(Kit $kit)
     {
         return Inertia::render('Kits/Edit/Index', [
-            'kit' => new KitResource($kit)
+            'kit' => new KitResource($kit->load('additionalFiles'))
         ]);
     }
 
@@ -86,11 +106,12 @@ class KitController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:4096']
+            'image' => ['nullable', 'image', 'max:4096'],
+            'status' => ['required', 'string', 'max:255'],
+            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
         ]);
 
-
-        $kitData = $request->only(['name', 'description']);
+        $kitData = $request->only(['name', 'description', 'status']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('kits', 'public');
@@ -98,6 +119,41 @@ class KitController extends Controller
         }
 
         $kit->update($kitData);
+
+        // Handle removed files
+        $removedFileIds = $request->input('remove_files', []);
+        if (!is_array($removedFileIds)) {
+            $removedFileIds = [];
+        }
+
+        if (!empty($removedFileIds)) {
+            foreach ($removedFileIds as $fileId) {
+                $file = AdditionalFile::find($fileId);
+                if ($file) {
+                    // Delete the physical file
+                    Storage::disk('public')->delete($file->file_path);
+                    // Detach and delete the file record
+                    $kit->additionalFiles()->detach($fileId);
+                    $file->delete();
+                    Log::info('File removed successfully', ['file_id' => $fileId]);
+                }
+            }
+        }
+
+        // Handle additional files
+        if ($request->hasFile('additional_files')) {
+            foreach ($request->file('additional_files') as $file) {
+                $path = $file->store('additional-files', 'public');
+                $additionalFile = AdditionalFile::create([
+                    'file_path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+                $kit->additionalFiles()->attach($additionalFile->id);
+                Log::info('Additional file uploaded successfully', ['path' => $path]);
+            }
+        }
 
         return redirect()->route('kits.index')->with('flash', [
             'banner' => 'Kit updated successfully.',

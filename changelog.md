@@ -63,3 +63,13 @@
 
 ## 0.3.12
 - Now shows if asset is already in an other kit
+- Added a character limit to the asset name and team name for the 29x90mm label
+- Added status to asset and kit
+- Updated logo and favicon
+
+## 0.3.13
+- Fixed QR Scanner to work with kits QR code
+
+## 0.3.14
+- Added additional files and custom ids to assets
+- Added additional files and custom ids to kits
