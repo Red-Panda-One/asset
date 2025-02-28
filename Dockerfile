@@ -55,4 +55,4 @@ ENTRYPOINT ["/usr/local/bin/php-entrypoint"]
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
-CMD []
+CMD ["php-fpm"]
