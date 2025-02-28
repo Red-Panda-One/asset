@@ -1,4 +1,7 @@
 #!/bin/bash
+
+echo "**** Injecting environment variables ****"
+
 function replace_or_insert() {
     grep -q "^${1}=" /var/www/html/.env && sed "s|^${1}=.*|${1}=${2}|" -i /var/www/html/.env || sed "$ a\\${1}=${2}" -i /var/www/html/.env
 }
