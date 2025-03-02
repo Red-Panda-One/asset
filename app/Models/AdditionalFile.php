@@ -15,7 +15,8 @@ class AdditionalFile extends Model
         'name',
         'mime_type',
         'size',
-        'description'
+        'description',
+        'team_id'
     ];
 
     public function assets(): BelongsToMany

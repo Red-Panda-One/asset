@@ -57,6 +57,7 @@ class KitController extends Controller
         ]);
 
         // Handle additional files
+        // In the store method:
         if ($request->hasFile('additional_files')) {
             foreach ($request->file('additional_files') as $file) {
                 $path = $file->store('additional-files', 'public');
@@ -65,6 +66,7 @@ class KitController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id  // Add this line
                 ]);
                 $kit->additionalFiles()->attach($additionalFile->id);
                 Log::info('Additional file uploaded successfully', ['path' => $path]);
@@ -149,6 +151,7 @@ class KitController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id  // Add this line
                 ]);
                 $kit->additionalFiles()->attach($additionalFile->id);
                 Log::info('Additional file uploaded successfully', ['path' => $path]);

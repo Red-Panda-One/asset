@@ -111,6 +111,7 @@ class AssetController extends Controller
         }
 
         // Handle additional files
+        // In the store method, update the additional files creation:
         if ($request->hasFile('additional_files')) {
             foreach ($request->file('additional_files') as $file) {
                 $path = $file->store('additional-files', 'public');
@@ -119,6 +120,7 @@ class AssetController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id  // Add this line
                 ]);
                 $asset->additionalFiles()->attach($additionalFile->id);
                 Log::info('Additional file uploaded successfully', ['path' => $path]);
@@ -246,6 +248,7 @@ class AssetController extends Controller
         }
 
         // Handle additional files
+        // Similarly in the update method, update the additional files creation:
         if ($request->hasFile('additional_files')) {
             foreach ($request->file('additional_files') as $file) {
                 $path = $file->store('additional-files', 'public');
@@ -254,6 +257,7 @@ class AssetController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id  // Add this line
                 ]);
                 $asset->additionalFiles()->attach($additionalFile->id);
                 Log::info('Additional file uploaded successfully', ['path' => $path]);
