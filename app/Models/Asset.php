@@ -58,6 +58,7 @@ class Asset extends Model
     public function additionalFiles(): BelongsToMany
     {
         return $this->belongsToMany(AdditionalFile::class, 'asset_additional_file', 'asset_id', 'additional_file_id')
+                    ->using(AssetAdditionalFile::class)
                     ->withTimestamps();
     }
 }

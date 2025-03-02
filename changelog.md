@@ -73,3 +73,6 @@
 ## 0.3.14
 - Added additional files and custom ids to assets
 - Added additional files and custom ids to kits
+
+## 0.4.0
+- Breaks a lot of DB

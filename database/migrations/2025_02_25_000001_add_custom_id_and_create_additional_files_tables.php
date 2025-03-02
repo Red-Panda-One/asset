@@ -22,8 +22,15 @@ return new class extends Migration
             $table->string('name');
             $table->string('mime_type');
             $table->integer('size');
+            $table->char('team_id', 26);  // Add team_id column
+            $table->integer('linked_count')->default(0);  // Add linked_count column
             $table->text('description')->nullable();
             $table->timestamps();
+
+            $table->foreign('team_id')
+                  ->references('id')
+                  ->on('teams')
+                  ->onDelete('cascade');
         });
 
         Schema::create('asset_additional_file', function (Blueprint $table) {

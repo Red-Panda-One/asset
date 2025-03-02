@@ -40,6 +40,7 @@ class Kit extends Model
     public function additionalFiles(): BelongsToMany
     {
         return $this->belongsToMany(AdditionalFile::class, 'kit_additional_file', 'kit_id', 'additional_file_id')
+                    ->using(KitAdditionalFile::class)
                     ->withTimestamps();
     }
 }

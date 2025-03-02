@@ -29,7 +29,8 @@ class AdditionalFileController extends Controller
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
             'description' => $request->description,
-            'team_id' => $request->team_id
+            'team_id' => $request->team_id,
+            'linked_count' => 1
         ]);
     }
 

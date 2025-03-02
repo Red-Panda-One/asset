@@ -27,6 +27,10 @@ const props = defineProps({
     multiple: {
         type: Boolean,
         default: false
+    },
+    display: {
+        type: Boolean,
+        default: true
     }
 });
 
@@ -96,7 +100,7 @@ onBeforeUnmount(() => {
     <div class="relative search-multiselect">
         <!-- Selected Items Display -->
         <div
-            v-if="multiple && modelValue?.length > 0"
+            v-if="multiple && modelValue?.length > 0 && display"
             class="flex flex-wrap gap-2 p-2 mb-2 min-h-[2.5rem] rounded-md border border-gray-300 dark:border-gray-700"
         >
             <NeumorphicBadge
@@ -156,7 +160,7 @@ onBeforeUnmount(() => {
                     v-for="option in filteredOptions"
                     :key="option[valueProp]"
                     @click="selectOption(option)"
-                    class="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                    class="flex justify-between items-center px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                     <span :class="{ 'text-gray-400 dark:text-gray-500': modelValue?.includes(option[valueProp]) }">{{ option[label] }}</span>
                     <svg

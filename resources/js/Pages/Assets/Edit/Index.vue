@@ -21,6 +21,7 @@ const props = defineProps({
     locations: Object,
     tags: Object,
     selectedTags: Array,
+    availableFiles: Object, // Add this line
 });
 
 console.log(props);
@@ -46,6 +47,7 @@ const form = useForm({
     image: null,
     custom_id: props.asset.data.custom_id,
     additional_files: [],
+    selected_files: props.asset.data.additional_files?.map(file => file.id) || [],
     status: props.asset.data.status || 'Available' as Status,
     remove_files: []
 });
@@ -275,7 +277,23 @@ const submit = () => {
                             </button>
                         </div>
                     </div>
-                    <InputError :message="form.errors.additional_files" class="mt-2" />
+                    <div>
+                        <InputLabel for="additional_files" value="Additional Files" />
+                        <div class="relative">
+                            <SearchMultiselect
+                                id="additional_files"
+                                v-model="form.selected_files"
+                                :display="false"
+                                :options="availableFiles.data"
+                                label="name"
+                                value-prop="id"
+                                :multiple="true"
+                                placeholder="Search and select files"
+                                class="mt-1"
+                            />
+                        </div>
+                        <InputError :message="form.errors.selected_files" class="mt-2" />
+                    </div>
                 </div>
 
 
