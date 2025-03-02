@@ -9,6 +9,9 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref } from 'vue';
 import StatusSelector from '@/Components/StatusSelector.vue';
 import type { Status } from '@/types/status';
+import SearchMultiselect from '@/Components/SearchMultiselect.vue';
+
+
 
 const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -31,6 +34,13 @@ interface KitProps {
     kit: {
         data: KitData;
     };
+    availableFiles: {
+        data: Array<{
+            id: number;
+            name: string;
+            // other file properties
+        }>;
+    };
 }
 
 const props = defineProps<KitProps>();
@@ -48,7 +58,8 @@ interface KitForm {
     status: Status;
     custom_id: string;
     additional_files: File[];
-    remove_files: File[];
+    selected_files: number[]; // Add this line
+    remove_files: number[];
 }
 
 const form = useForm<KitForm>({
@@ -58,6 +69,7 @@ const form = useForm<KitForm>({
     status: kitData.status || 'Available',
     custom_id: kitData.custom_id || '',
     additional_files: [],
+    selected_files: props.kit.data.additional_files?.map(file => file.id) || [], // Add this line
     remove_files: []
 });
 
@@ -222,15 +234,21 @@ const submit = () => {
                     <InputError :message="form.errors.image" class="mt-2" />
                 </div>
 
+                <!-- Add this before the submit button -->
                 <div>
                     <InputLabel value="Additional Files" />
                     <div class="mt-1">
-                        <input type="file" multiple @change="handleAdditionalFiles" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"/>
+                        <input
+                            type="file"
+                            multiple
+                            @change="handleAdditionalFiles"
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                        />
                         <p class="mt-1 text-xs text-gray-500">Upload multiple files (PNG, JPG, PDF up to 4MB each)</p>
                     </div>
-
-                     <!-- Display existing files -->
-                     <div v-if="existingFiles.length > 0" class="mt-3 space-y-2">
+                    <!-- Display existing files -->
+                    <div v-if="existingFiles.length > 0" class="mt-3 space-y-2">
                         <h4 class="text-sm font-medium text-gray-700">Existing Files:</h4>
                         <div v-for="file in existingFiles" :key="file.id" class="flex justify-between items-center p-2 bg-gray-50 rounded-md">
                             <div class="ml-2">
@@ -256,7 +274,23 @@ const submit = () => {
                             </button>
                         </div>
                     </div>
-                    <InputError :message="form.errors.additional_files" class="mt-2" />
+                    <div>
+                        <InputLabel for="additional_files" value="Link Existing Files" />
+                        <div class="relative">
+                            <SearchMultiselect
+                                id="additional_files"
+                                v-model="form.selected_files"
+                                :display="false"
+                                :options="availableFiles.data"
+                                label="name"
+                                value-prop="id"
+                                :multiple="true"
+                                placeholder="Search and select files"
+                                class="mt-1"
+                            />
+                        </div>
+                        <InputError :message="form.errors.selected_files" class="mt-2" />
+                    </div>
                 </div>
 
 
