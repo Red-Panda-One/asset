@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "**** Startup file ****"
+
 if [ -n "$STARTUP_DELAY" ]
 	then echo "**** Delaying startup ($STARTUP_DELAY seconds)... ****"
 	sleep $STARTUP_DELAY
@@ -34,8 +36,17 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Create storage symlink and set permissions
-php artisan storage:link
+echo "
+=================================================
+STARTING MIGRATIONS
+=================================================
+"
+php artisan migrate --force
+
+# Create storage symlink and set permissions if not exists
+if [ ! -L "/var/www/html/public/storage" ]; then
+    php artisan storage:link
+fi
 chmod -R 775 /var/www/html/storage/app/public
 chown -R www-data:www-data /var/www/html/storage/app/public
 

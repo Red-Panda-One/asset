@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdditionalFileResource;
 use App\Http\Resources\AssetResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\LocationResource;
 use App\Http\Resources\TagResource;
+use App\Models\AdditionalFile;
 use App\Models\Asset;
 use App\Models\Categories;
 use App\Models\Location;
@@ -48,6 +50,9 @@ class AssetController extends Controller
             'tags' => TagResource::collection(
                 Tag::where('team_id', request()->user()->currentTeam->id)->get()
             ),
+            'availableFiles' => AdditionalFileResource::collection(
+                AdditionalFile::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
         ]);
     }
 
@@ -60,22 +65,24 @@ class AssetController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'value' => 'nullable|numeric',
+            'custom_id' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
             'category_id' => 'nullable|exists:categories,id',
             'location_id' => 'nullable|exists:locations,id',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'status' => 'required|string|max:255',
+            'selected_files' => 'nullable|array',
+            'selected_files.*' => 'exists:additional_files,id',
         ]);
 
-        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status']);
+        $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status', 'custom_id']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('assets', 'public');
             $data['image'] = $path;
             Log::info('Image uploaded successfully', ['path' => $path]);
-        } else {
-            Log::info('No image file provided');
         }
 
         $asset = Asset::create([
@@ -85,6 +92,38 @@ class AssetController extends Controller
 
         if ($request->has('tags')) {
             $asset->tags()->sync($request->tags);
+        }
+
+        // Handle linking existing files
+        if ($request->has('selected_files')) {
+            foreach ($request->selected_files as $fileId) {
+                $file = AdditionalFile::find($fileId);
+                if ($file) {
+                    $asset->additionalFiles()->attach($fileId);
+                    $file->increment('linked_count');
+                    Log::info('Existing file linked successfully', ['file_id' => $fileId]);
+                }
+            }
+        }
+
+        // Handle new file uploads
+        if ($request->hasFile('additional_files')) {
+            foreach ($request->file('additional_files') as $file) {
+                $path = $file->store('additional-files', 'public');
+                $additionalFile = AdditionalFile::create([
+                    'file_path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id,
+                    'linked_count' => 1
+                ]);
+                $asset->additionalFiles()->attach($additionalFile->id);
+                Log::info('New file uploaded and linked successfully', [
+                    'path' => $path,
+                    'file_id' => $additionalFile->id
+                ]);
+            }
         }
 
         return redirect()->route('assets.index')->with('flash', [
@@ -100,7 +139,7 @@ class AssetController extends Controller
     public function show(Asset $asset)
     {
         return Inertia::render('Assets/Show', [
-            'asset' => new AssetResource($asset->load(['category', 'location', 'tags'])),
+            'asset' => new AssetResource($asset->load(['category', 'location', 'tags', 'additionalFiles'])),
         ]);
     }
 
@@ -110,7 +149,7 @@ class AssetController extends Controller
     public function edit(Asset $asset)
     {
         return Inertia::render('Assets/Edit/Index', [
-            'asset' => new AssetResource($asset->load(['category', 'location', 'tags'])),
+            'asset' => new AssetResource($asset->load(['category', 'location', 'tags', 'additionalFiles'])),
             'categories' => CategoryResource::collection(
                 Categories::where('team_id', request()->user()->currentTeam->id)->get()
             ),
@@ -121,6 +160,9 @@ class AssetController extends Controller
                 Tag::where('team_id', request()->user()->currentTeam->id)->get()
             ),
             'selectedTags' => TagResource::collection($asset->tags),
+            'availableFiles' => AdditionalFileResource::collection(
+                AdditionalFile::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
         ]);
     }
 
@@ -129,7 +171,6 @@ class AssetController extends Controller
      */
     public function update(Request $request, Asset $asset)
     {
-
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -140,7 +181,14 @@ class AssetController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'status' => 'required|string|max:255',
+            'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'remove_files.*' => 'nullable|exists:additional_files,id',
+            'selected_files' => 'nullable|array',
+            'selected_files.*' => 'exists:additional_files,id',
         ]);
+
+        // Get current additional files before any changes
+        $currentFileIds = $asset->additionalFiles->pluck('id')->toArray();
 
         $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status']);
 
@@ -186,9 +234,70 @@ class AssetController extends Controller
             Log::info('Asset tags updated', ['new_tags' => $request->tags]);
         }
 
+        // Update additional files with linked_count management
+        if ($request->has('selected_files')) {
+            // Get files that will be newly attached
+            $newFileIds = array_diff($request->selected_files, $currentFileIds);
+
+            // Get files that will be detached
+            $detachedFileIds = array_diff($currentFileIds, $request->selected_files);
+
+            // Increment linked_count for newly attached files
+            if (!empty($newFileIds)) {
+                AdditionalFile::whereIn('id', $newFileIds)->increment('linked_count');
+                Log::info('Incremented linked_count for files', ['file_ids' => $newFileIds]);
+            }
+
+            // Decrement linked_count for detached files
+            if (!empty($detachedFileIds)) {
+                AdditionalFile::whereIn('id', $detachedFileIds)->decrement('linked_count');
+                Log::info('Decremented linked_count for files', ['file_ids' => $detachedFileIds]);
+            }
+
+            // Perform the sync operation
+            $asset->additionalFiles()->sync($request->selected_files);
+            Log::info('Asset additional files updated', ['new_files' => $request->selected_files]);
+        }
+
+        // Handle removed files with linked_count update
+        $removedFileIds = $request->input('remove_files', []);
+        if (!empty($removedFileIds)) {
+            foreach ($removedFileIds as $fileId) {
+                $file = AdditionalFile::find($fileId);
+                if ($file) {
+                    // Delete the physical file
+                    Storage::disk('public')->delete($file->file_path);
+                    // Detach and delete the file record
+                    $asset->additionalFiles()->detach($fileId);
+                    $file->decrement('linked_count');
+                    if ($file->linked_count < 0) {
+                        $file->delete();
+                    }
+                    Log::info('File removed and linked_count updated', ['file_id' => $fileId]);
+                }
+            }
+        }
+
+        // Handle new additional files with linked_count
+        if ($request->hasFile('additional_files')) {
+            foreach ($request->file('additional_files') as $file) {
+                $path = $file->store('additional-files', 'public');
+                $additionalFile = AdditionalFile::create([
+                    'file_path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id,
+                    'linked_count' => 1  // Set initial linked_count
+                ]);
+                $asset->additionalFiles()->attach($additionalFile->id);
+                Log::info('Additional file uploaded successfully with linked_count', ['path' => $path]);
+            }
+        }
+
         Log::info('Asset update completed successfully', ['asset_id' => $asset->id]);
 
-        return redirect()->route('assets.index')->with('flash', [
+        return redirect()->route('assets.show', $asset)->with('flash', [
             'banner' => 'Asset updated successfully.',
             'bannerStyle' => 'success',
             'bannerTimeout' => 2000,

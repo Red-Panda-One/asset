@@ -9,23 +9,40 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref } from 'vue';
 import StatusSelector from '@/Components/StatusSelector.vue';
 import type { Status } from '@/types/status';
+import SearchMultiselect from '@/Components/SearchMultiselect.vue';
+
+// Define props before the interface
+defineProps({
+    availableFiles: {
+        type: Object,
+        required: true
+    }
+});
 
 interface KitForm {
     name: string;
     description: string;
+    custom_id: string;
     image: File | null;
+    additional_files: File[];
+    selected_files: number[]; // Add this line
     status: Status;
 }
 
 const form = useForm<KitForm>({
     name: '',
     description: '',
+    custom_id: '',
     image: null,
+    additional_files: [],
+    selected_files: [], // Add this line
     status: 'Available'
 });
 
 const imagePreview = ref(null);
 const fileName = ref('');
+
+// Remove the console.log(availableFiles) line as it's no longer needed
 
 const handleImageUpload = (e: Event) => {
     if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
@@ -62,6 +79,22 @@ const handleDrop = (e: DragEvent) => {
         reader.readAsDataURL(file);
     } else {
         alert('Please upload PNG or JPG/JPEG files only');
+    }
+};
+
+const handleAdditionalFiles = (e: Event) => {
+    if (!(e.target instanceof HTMLInputElement) || !e.target.files) return;
+    const files = Array.from(e.target.files);
+    for (const file of files) {
+        if (file.size > 4 * 1024 * 1024) {
+            alert(`File ${file.name} exceeds 4MB limit`);
+            continue;
+        }
+        if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
+            alert(`File ${file.name} is not a supported format`);
+            continue;
+        }
+        form.additional_files.push(file);
     }
 };
 
@@ -107,6 +140,17 @@ const submit = () => {
                         rows="4"
                     ></textarea>
                     <InputError :message="form.errors.description" class="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel for="custom_id" value="Custom ID" />
+                    <TextInput
+                        id="custom_id"
+                        v-model="form.custom_id"
+                        type="text"
+                        class="block mt-1 w-full"
+                    />
+                    <InputError :message="form.errors.custom_id" class="mt-2" />
                 </div>
 
                 <div>
@@ -157,10 +201,52 @@ const submit = () => {
                         </div>
                     </div>
                     <InputError :message="form.errors.image" class="mt-2" />
+                </div>
 
+                <!-- Add this before the submit button -->
+                <div>
+                    <InputLabel for="additional_files" value="Additional Files" />
+                    <div class="mt-1">
+                        <input
+                            type="file"
+                            multiple
+                            @change="handleAdditionalFiles"
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                        />
+                        <p class="mt-1 text-xs text-gray-500">Upload multiple files (PNG, JPG, PDF up to 4MB each)</p>
+                    </div>
+                    <div v-if="form.additional_files.length > 0" class="mt-3 space-y-2">
+                        <div v-for="(file, index) in form.additional_files" :key="index" class="flex items-center p-2 bg-gray-50 rounded-md">
+                            <div class="ml-2">
+                                <p class="text-sm text-gray-700">{{ file.name }}</p>
+                                <p class="text-xs text-gray-500">{{ (file.size / 1024 / 1024).toFixed(2) }} MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    <InputError :message="form.errors.additional_files" class="mt-2" />
                 </div>
 
                 <div>
+                    <InputLabel for="additional_files" value="Link Existing Files" />
+                    <div class="relative">
+                        <SearchMultiselect
+                            id="additional_files"
+                            v-model="form.selected_files"
+                            :display="false"
+                            :options="availableFiles.data"
+                            label="name"
+                            value-prop="id"
+                            :multiple="true"
+                            placeholder="Search and select files"
+                            class="mt-1"
+                        />
+                    </div>
+                    <InputError :message="form.errors.selected_files" class="mt-2" />
+                </div>
+
+                <div>
+
                         <StatusSelector
                             v-model="form.status"
                             :error="form.errors.status"

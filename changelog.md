@@ -69,3 +69,10 @@
 
 ## 0.3.13
 - Fixed QR Scanner to work with kits QR code
+
+## 0.3.14
+- Added additional files and custom ids to assets
+- Added additional files and custom ids to kits
+
+## 0.4.0
+- Breaks a lot of DB

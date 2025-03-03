@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('image')->nullable();
-            $table->string('team_id', 26);
+            $table->char('team_id', 26);  // Changed to char(26) for ULID
             $table->foreign('team_id')
                   ->references('id')
                   ->on('teams')
@@ -25,8 +25,10 @@ return new class extends Migration
 
         Schema::create('kit_asset', function (Blueprint $table) {
             $table->id();
-            $table->string('kit_id', 26);
-            $table->string('asset_id', 26);
+            $table->char('kit_id', 26);  // Changed to char(26) for ULID
+            $table->char('asset_id', 26);  // Changed to char(26) for ULID
+            $table->timestamps();
+
             $table->foreign('kit_id')
                   ->references('id')
                   ->on('kits')
@@ -35,13 +37,21 @@ return new class extends Migration
                   ->references('id')
                   ->on('assets')
                   ->onDelete('cascade');
-            $table->timestamps();
         });
     }
 
 
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
+
+        // Drop pivot tables first
+        Schema::dropIfExists('kit_asset');
+        Schema::dropIfExists('kit_custom_field_values');
+
+        // Then drop the main table
         Schema::dropIfExists('kits');
+
+        Schema::enableForeignKeyConstraints();
     }
 };

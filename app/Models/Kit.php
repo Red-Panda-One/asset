@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Kit extends Model
@@ -17,7 +18,8 @@ class Kit extends Model
         'image',
         'team_id',
         'asset_count',
-        'status'
+        'status',
+        'custom_id'
     ];
 
     public function team(): BelongsTo
@@ -28,5 +30,16 @@ class Kit extends Model
     public function assets(): BelongsToMany
     {
         return $this->belongsToMany(Asset::class, 'kit_asset', 'kit_id', 'asset_id');
+    }
+
+    public function customFieldValues(): HasMany
+    {
+        return $this->hasMany(KitCustomFieldValue::class);
+    }
+
+    public function additionalFiles()
+    {
+        return $this->belongsToMany(AdditionalFile::class, 'kit_additional_file')
+            ->withTimestamps();
     }
 }
