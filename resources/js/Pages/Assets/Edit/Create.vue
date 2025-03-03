@@ -16,6 +16,7 @@ defineProps({
     categories: Object,
     locations: Object,
     tags: Object,
+    availableFiles: Object,
 });
 
 const form = useForm({
@@ -28,6 +29,7 @@ const form = useForm({
     tags: [],
     image: null,
     additional_files: [],
+    selected_files: [], // Add this line
     status: 'Available' as Status
 });
 
@@ -182,6 +184,25 @@ const submit = () => {
                     <InputError :message="form.errors.additional_files" class="mt-2" />
                 </div>
 
+                <div>
+                    <div>
+                        <InputLabel for="additional_files" value="Link Existing Files" />
+                        <div class="relative">
+                            <SearchMultiselect
+                                id="additional_files"
+                                v-model="form.selected_files"
+                                :display="false"
+                                :options="availableFiles.data"
+                                label="name"
+                                value-prop="id"
+                                :multiple="true"
+                                placeholder="Search and select files"
+                                class="mt-1"
+                            />
+                        </div>
+                        <InputError :message="form.errors.selected_files" class="mt-2" />
+                    </div>
+                </div>
                 <!-- Tag/Category/Location  -->
                 <div>
                     <InputLabel for="category" value="Category" />
@@ -207,6 +228,7 @@ const submit = () => {
                     </div>
                     <InputError :message="form.errors.tags" class="mt-2" />
                 </div>
+
 
                 <div>
                     <StatusSelector v-model="form.status" :error="form.errors.status" />

@@ -20,6 +20,8 @@ class AdditionalFileResource extends JsonResource
             'name' => $this->name,
             'mime_type' => $this->mime_type,
             'size' => $this->size,
+            'team_id' => $this->team_id,
+            'linked_count' => $this->linked_count,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

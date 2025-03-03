@@ -15,7 +15,8 @@ class AdditionalFile extends Model
         'name',
         'mime_type',
         'size',
-        'description'
+        'description',
+        'team_id'
     ];
 
     public function assets(): BelongsToMany
@@ -24,9 +25,9 @@ class AdditionalFile extends Model
                     ->withTimestamps();
     }
 
-    public function kits(): BelongsToMany
+    public function kits()
     {
-        return $this->belongsToMany(Kit::class, 'kit_additional_file', 'additional_file_id', 'kit_id')
-                    ->withTimestamps();
+        return $this->belongsToMany(Kit::class, 'kit_additional_file')
+            ->withTimestamps();
     }
 }

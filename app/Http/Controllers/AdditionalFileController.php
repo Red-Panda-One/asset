@@ -16,7 +16,8 @@ class AdditionalFileController extends Controller
     {
         $request->validate([
             'file' => 'required|file|max:4096',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'team_id' => 'required|exists:teams,id'
         ]);
 
         $file = $request->file('file');
@@ -27,7 +28,9 @@ class AdditionalFileController extends Controller
             'name' => $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
-            'description' => $request->description
+            'description' => $request->description,
+            'team_id' => $request->team_id,
+            'linked_count' => 1
         ]);
     }
 

@@ -50,6 +50,9 @@ class AssetController extends Controller
             'tags' => TagResource::collection(
                 Tag::where('team_id', request()->user()->currentTeam->id)->get()
             ),
+            'availableFiles' => AdditionalFileResource::collection(
+                AdditionalFile::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
         ]);
     }
 
@@ -70,6 +73,8 @@ class AssetController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'status' => 'required|string|max:255',
+            'selected_files' => 'nullable|array',
+            'selected_files.*' => 'exists:additional_files,id',
         ]);
 
         $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status', 'custom_id']);
@@ -78,8 +83,6 @@ class AssetController extends Controller
             $path = $request->file('image')->store('assets', 'public');
             $data['image'] = $path;
             Log::info('Image uploaded successfully', ['path' => $path]);
-        } else {
-            Log::info('No image file provided');
         }
 
         $asset = Asset::create([
@@ -91,26 +94,19 @@ class AssetController extends Controller
             $asset->tags()->sync($request->tags);
         }
 
-        // Handle removed files
-        $submittedFileIds = $request->input('existing_files', []);
-        $currentFileIds = $asset->additionalFiles->pluck('id')->toArray();
-        $removedFileIds = array_diff($currentFileIds, $submittedFileIds);
-
-        if (!empty($removedFileIds)) {
-            foreach ($removedFileIds as $fileId) {
+        // Handle linking existing files
+        if ($request->has('selected_files')) {
+            foreach ($request->selected_files as $fileId) {
                 $file = AdditionalFile::find($fileId);
                 if ($file) {
-                    // Delete the physical file
-                    Storage::disk('public')->delete($file->file_path);
-                    // Detach and delete the file record
-                    $asset->additionalFiles()->detach($fileId);
-                    $file->delete();
-                    Log::info('File removed successfully', ['file_id' => $fileId]);
+                    $asset->additionalFiles()->attach($fileId);
+                    $file->increment('linked_count');
+                    Log::info('Existing file linked successfully', ['file_id' => $fileId]);
                 }
             }
         }
 
-        // Handle additional files
+        // Handle new file uploads
         if ($request->hasFile('additional_files')) {
             foreach ($request->file('additional_files') as $file) {
                 $path = $file->store('additional-files', 'public');
@@ -119,9 +115,14 @@ class AssetController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id,
+                    'linked_count' => 1
                 ]);
                 $asset->additionalFiles()->attach($additionalFile->id);
-                Log::info('Additional file uploaded successfully', ['path' => $path]);
+                Log::info('New file uploaded and linked successfully', [
+                    'path' => $path,
+                    'file_id' => $additionalFile->id
+                ]);
             }
         }
 
@@ -159,6 +160,9 @@ class AssetController extends Controller
                 Tag::where('team_id', request()->user()->currentTeam->id)->get()
             ),
             'selectedTags' => TagResource::collection($asset->tags),
+            'availableFiles' => AdditionalFileResource::collection(
+                AdditionalFile::where('team_id', request()->user()->currentTeam->id)->get()
+            ),
         ]);
     }
 
@@ -167,9 +171,6 @@ class AssetController extends Controller
      */
     public function update(Request $request, Asset $asset)
     {
-        // Get current additional files before any changes
-        $currentFileIds = $asset->additionalFiles->pluck('id')->toArray();
-
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -182,7 +183,12 @@ class AssetController extends Controller
             'status' => 'required|string|max:255',
             'additional_files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
             'remove_files.*' => 'nullable|exists:additional_files,id',
+            'selected_files' => 'nullable|array',
+            'selected_files.*' => 'exists:additional_files,id',
         ]);
+
+        // Get current additional files before any changes
+        $currentFileIds = $asset->additionalFiles->pluck('id')->toArray();
 
         $data = $request->only(['name', 'description', 'value', 'category_id', 'location_id', 'status']);
 
@@ -228,9 +234,33 @@ class AssetController extends Controller
             Log::info('Asset tags updated', ['new_tags' => $request->tags]);
         }
 
-        // Handle removed files
-        $removedFileIds = $request->input('remove_files', []);
+        // Update additional files with linked_count management
+        if ($request->has('selected_files')) {
+            // Get files that will be newly attached
+            $newFileIds = array_diff($request->selected_files, $currentFileIds);
 
+            // Get files that will be detached
+            $detachedFileIds = array_diff($currentFileIds, $request->selected_files);
+
+            // Increment linked_count for newly attached files
+            if (!empty($newFileIds)) {
+                AdditionalFile::whereIn('id', $newFileIds)->increment('linked_count');
+                Log::info('Incremented linked_count for files', ['file_ids' => $newFileIds]);
+            }
+
+            // Decrement linked_count for detached files
+            if (!empty($detachedFileIds)) {
+                AdditionalFile::whereIn('id', $detachedFileIds)->decrement('linked_count');
+                Log::info('Decremented linked_count for files', ['file_ids' => $detachedFileIds]);
+            }
+
+            // Perform the sync operation
+            $asset->additionalFiles()->sync($request->selected_files);
+            Log::info('Asset additional files updated', ['new_files' => $request->selected_files]);
+        }
+
+        // Handle removed files with linked_count update
+        $removedFileIds = $request->input('remove_files', []);
         if (!empty($removedFileIds)) {
             foreach ($removedFileIds as $fileId) {
                 $file = AdditionalFile::find($fileId);
@@ -239,13 +269,16 @@ class AssetController extends Controller
                     Storage::disk('public')->delete($file->file_path);
                     // Detach and delete the file record
                     $asset->additionalFiles()->detach($fileId);
-                    $file->delete();
-                    Log::info('File removed successfully', ['file_id' => $fileId]);
+                    $file->decrement('linked_count');
+                    if ($file->linked_count < 0) {
+                        $file->delete();
+                    }
+                    Log::info('File removed and linked_count updated', ['file_id' => $fileId]);
                 }
             }
         }
 
-        // Handle additional files
+        // Handle new additional files with linked_count
         if ($request->hasFile('additional_files')) {
             foreach ($request->file('additional_files') as $file) {
                 $path = $file->store('additional-files', 'public');
@@ -254,9 +287,11 @@ class AssetController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
+                    'team_id' => $request->user()->currentTeam->id,
+                    'linked_count' => 1  // Set initial linked_count
                 ]);
                 $asset->additionalFiles()->attach($additionalFile->id);
-                Log::info('Additional file uploaded successfully', ['path' => $path]);
+                Log::info('Additional file uploaded successfully with linked_count', ['path' => $path]);
             }
         }
 

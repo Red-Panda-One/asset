@@ -37,9 +37,9 @@ class Kit extends Model
         return $this->hasMany(KitCustomFieldValue::class);
     }
 
-    public function additionalFiles(): BelongsToMany
+    public function additionalFiles()
     {
-        return $this->belongsToMany(AdditionalFile::class, 'kit_additional_file', 'kit_id', 'additional_file_id')
-                    ->withTimestamps();
+        return $this->belongsToMany(AdditionalFile::class, 'kit_additional_file')
+            ->withTimestamps();
     }
 }
