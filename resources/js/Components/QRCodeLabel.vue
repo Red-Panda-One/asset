@@ -30,6 +30,55 @@ const downloadQR = (): void => {
     link.click();
 };
 
+const printQROnly = (): void => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    const team = (page.props.auth as any).user.current_team;
+    const logoSrc = colorMode.value === 'color' ? (team.colored_logo || defaultColor) : (team.bw_logo || defaultBW);
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>QR Label - ${props.name}</title>
+                <style>
+                    @page { size: 0.9in 0.9in; margin: 0; }
+                     body {
+                margin: 0;
+                padding: 0;
+                height: 0.9in;
+                width: 0.9in;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+            .qr-container {
+                width: 0.9in;
+                height: 0.9in;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .qr-code {
+                width: 75%;
+                height: 75%;
+            }
+                </style>
+            </head>
+            <body>
+                <div class="qr-container">
+                    <img src="${qrcode.value}" alt="QR Code" class="qr-code">
+                </div>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 250);
+};
+
 const printLabel = (): void => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -171,7 +220,13 @@ const printLabel = (): void => {
                     @click="printLabel"
                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                    Print Label 1.1x3.5 in
+                    Print 1.1x3.5 in
+                </button>
+                <button
+                    @click="printQROnly"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    Print 0.9x0.9 in
                 </button>
             </div>
         </div>

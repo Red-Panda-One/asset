@@ -1,12 +1,21 @@
-install or upgrade
+# Difference between `docker-compose.local` and `docker-compose.prod`
 
-```
-docker exec your_container_name php artisan migrate
-docker exec your_container_name php artisan storage:link
+`docker-compose.local`
+APP_ENV: local
 
-```
+APP_URL: 'http://localhost'
+ASSET_URL: 'http://localhost'
+SANCTUM_STATEFUL_DOMAINS: 'localhost'
+SESSION_DOMAIN: null
 
-```
-php artisan storage:link
-php artisan migrate
-```
+## for production with a domain 
+use prod and edit the following
+
+--- production redirects http to https as coded in AppServiceProvider.php
+
+APP_ENV: production
+---- For your own Domain
+APP_URL: 'https://my_domain.com'
+ASSET_URL: 'https://my_domain.com'
+SANCTUM_STATEFUL_DOMAINS: 'my_domain.com'
+SESSION_DOMAIN: 'my_domain.com'
